@@ -83,7 +83,7 @@ Build mode: fast. The learner chose it: "just discuss and ask me for the importa
   Learner check: Open Privacy, read what's held, Delete all, and confirm everything is empty.
   Commit: `Add everything-we-hold view and secure delete all`
 
-- [ ] **8. Weekly UC journal export**
+- [x] **8. Weekly UC journal export**
   Becomes usable: Export page with a week picker (defaulting to the last 7 days), a ready-to-paste summary with Copy, and Download CSV.
   Why now: This is the payoff beat. It only needs events data, which now exists.
   PRD ref: `prd.md > Export`

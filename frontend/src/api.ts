@@ -95,6 +95,8 @@ export const api = {
   discard: (id: number) => request<{ ok: boolean }>(`/api/quarantine/${id}/discard`, { method: "POST" }),
   settings: () => request<Settings>("/api/settings"),
   saveSettings: (s: Partial<Settings> & { auto_clean_never?: boolean }) => request<Settings>("/api/settings", { method: "PUT", body: JSON.stringify(s) }),
+  exportSummary: (start: string, end: string) =>
+    request<{ start: string; end: string; count: number; text: string }>(`/api/export?start=${start}&end=${end}`),
   everything: () => request<Everything>("/api/everything"),
   deleteAll: () => request<{ ok: boolean }>("/api/delete-all?confirm=true", { method: "POST" }),
 };

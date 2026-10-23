@@ -2,8 +2,8 @@ import { BrowserRouter, Route, Routes } from "react-router";
 import { Banners } from "./components/Banners";
 import { NavBar } from "./components/NavBar";
 import { ScanToast } from "./components/ScanToast";
+import { Export } from "./pages/Export";
 import { Overview } from "./pages/Overview";
-import { Placeholder } from "./pages/Placeholder";
 import { Privacy } from "./pages/Privacy";
 import { Quarantine } from "./pages/Quarantine";
 import { Review } from "./pages/Review";
@@ -23,7 +23,7 @@ export default function App() {
           <Route path="/review" element={<Review />} />
           <Route path="/quarantine" element={<Quarantine />} />
           <Route path="/privacy" element={<Privacy />} />
-          <Route path="/export" element={<Placeholder title="Export" />} />
+          <Route path="/export" element={<Export />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
         <ScanToast />

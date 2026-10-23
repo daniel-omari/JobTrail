@@ -7,7 +7,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from .api import applications, overview, privacy, quarantine, review, scan, settings, status
+from .api import applications, export, overview, privacy, quarantine, review, scan, settings, status
 from .config import Config
 from .db import init_db
 from .logging_setup import setup_logging
@@ -55,7 +55,7 @@ def create_app(
             response.headers["Cache-Control"] = "no-store"
         return response
 
-    for module in (scan, applications, overview, privacy, quarantine, review, settings, status):
+    for module in (scan, applications, export, overview, privacy, quarantine, review, settings, status):
         app.include_router(module.router)
 
     dist = config.frontend_dist

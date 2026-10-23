@@ -54,3 +54,6 @@ table.data tr:last-child td { border-bottom: none; }
 .held-body ul { margin: 0; padding-left: 18px; }
 .held-body pre { background: #f6f7f9; padding: 10px; border-radius: var(--radius-sm); overflow-x: auto; }
 .held-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+.export-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.export-controls input { font: inherit; padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); margin-left: 6px; color: var(--text); }
+.export-text { width: 100%; min-height: 320px; font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 13px; line-height: 1.6; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fbfcfd; color: var(--text); resize: vertical; }
