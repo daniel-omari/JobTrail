@@ -1,4 +1,4 @@
-﻿---
+---
 doc: checklist
 status: approved
 ---
