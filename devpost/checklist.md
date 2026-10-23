@@ -9,7 +9,7 @@ Build mode: fast. The learner chose it: "just discuss and ask me for the importa
 
 ## Slices
 
-- [ ] **1. Scan the synthetic inbox and see what was opened vs skipped**
+- [x] **1. Scan the synthetic inbox and see what was opened vs skipped**
   Becomes usable: A running JobTrail at `127.0.0.1:8000`. Clicking Scan Now processes the synthetic inbox with the rules only. Hiring emails from known platforms appear in a basic Tracker list, and the Privacy page shows the access ledger. Personal emails are skipped unopened.
   Why now: This is the kernel (privacy you can verify), and it bootstraps the whole stack: backend, DB, fixtures, frontend build, single-origin serving. Everything later plugs into this path.
   PRD ref: `prd.md > The Core Journey` (steps 1–4), `prd.md > Scanning`, `prd.md > Privacy`
@@ -135,3 +135,6 @@ Reflection:
 Activity mode:
 
 ## Revisions
+
+- Fixture dates are stored as `days_ago` instead of absolute dates — absolute dates would go stale before judging, breaking the This week / This month views.
+- Scan summary gained an `already_seen` count, so rescans don't report previously opened emails as "skipped unopened".

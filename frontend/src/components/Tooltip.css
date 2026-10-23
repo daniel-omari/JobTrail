@@ -1,0 +1,2 @@
+.tip-wrap { position: relative; display: inline-flex; }
+.tip { position: absolute; top: calc(100% + 8px); right: 0; width: 260px; background: var(--text); color: #fff; font-size: 13px; font-weight: 400; line-height: 1.45; padding: 10px 12px; border-radius: var(--radius-sm); box-shadow: 0 6px 20px rgba(0,0,0,0.18); z-index: 30; }
