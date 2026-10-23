@@ -1,4 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router";
+import { Banners } from "./components/Banners";
 import { NavBar } from "./components/NavBar";
 import { ScanToast } from "./components/ScanToast";
 import { Overview } from "./pages/Overview";
@@ -12,6 +13,7 @@ export default function App() {
     <BrowserRouter>
       <ScanProvider>
         <NavBar />
+        <Banners />
         <Routes>
           <Route path="/" element={<Overview />} />
           <Route path="/tracker" element={<Tracker />} />

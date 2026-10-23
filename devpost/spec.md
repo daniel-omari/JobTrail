@@ -389,6 +389,18 @@ Implements `scope.md > The Unique Kernel`.
 - **Resolved by:** a CSP `connect-src 'self'`, self-hosted assets, FastAPI serving the built app on one origin bound to 127.0.0.1, minimal deps plus audits, and the backend egress-guard test.
 - **Evidence during the build:** DevTools Network shows only `127.0.0.1`; the response headers show the CSP; `test_egress.py` passes.
 
+**Model decision (build step 2, learner choice): qwen2.5:7b.**
+
+| Probe result (`scripts/model_probe.py`) | llama3.2:3b | qwen2.5:7b |
+|---|---|---|
+| All three fields right, 17 hiring emails | 16/17 | 17/17 |
+| Time per email | 0.14s | 0.24s |
+| Demo attack fooled with defences off | yes | yes |
+
+Finding: the hardened prompt alone did not stop the hidden-text attack, because both models still answered Offer when the hidden text reached them. The visible "SYSTEM INSTRUCTION" email fooled both models even with visible text only. This supports the layered design: hidden text is stripped, the detector runs before the model, and the cross-check runs after it.
+
+**Checked early in the build (resolved):** Python 3.14 works with FastAPI 0.161, Pydantic 2.14 and httpx 0.28. Ollama 0.40.9 accepts a JSON schema in `format` on `/api/chat`.
+
 **Open, to check early in the build:**
 - Python 3.14 compatibility of the pinned deps (fallback: 3.13).
 - The current Ollama structured-output field and docs URL.

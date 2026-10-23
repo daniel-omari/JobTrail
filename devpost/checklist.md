@@ -19,7 +19,7 @@ Build mode: fast. The learner chose it: "just discuss and ask me for the importa
   Learner check: Run `python -m jobtrail`, click Scan Now, open the Tracker and Privacy pages, and check that no personal email appears in the ledger.
   Commit: `Scan synthetic inbox headers-first with gated, ledgered body access`
 
-- [ ] **2. The local AI extracts details, and the model is chosen**
+- [x] **2. The local AI extracts details, and the model is chosen**
   Becomes usable: Scans use Ollama for company/role/status, with strict JSON validation. If Ollama is off, a "rules-only mode" banner appears and scans still work. A probe script compares two candidate models.
   Why now: This is the riskiest unknown, covering the Ollama API shape, model quality and whether the "defences off" attack will land. It's better to find out before the defence demo is built on top of it.
   PRD ref: `prd.md > Scanning`, `prd.md > States and Boundaries` (Local AI not running)

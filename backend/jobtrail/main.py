@@ -12,6 +12,7 @@ from .config import Config
 from .db import init_db
 from .logging_setup import setup_logging
 from .sources.base import InboxSource
+from .pipeline.extract_llm import OllamaExtractor
 from .sources.synthetic import SyntheticInbox
 
 # The browser may only talk to this app itself: no CDNs, fonts, analytics or other sites.
@@ -30,7 +31,11 @@ SECURITY_HEADERS = {
 }
 
 
-def create_app(config: Config | None = None, source_factory: Callable[[], InboxSource] | None = None) -> FastAPI:
+def create_app(
+    config: Config | None = None,
+    source_factory: Callable[[], InboxSource] | None = None,
+    llm_factory: Callable[[str], OllamaExtractor | None] | None = None,
+) -> FastAPI:
     config = config or Config()
     init_db(config.db_path)
     setup_logging(config.log_path)
@@ -39,6 +44,7 @@ def create_app(config: Config | None = None, source_factory: Callable[[], InboxS
     app = FastAPI(title="JobTrail", docs_url=None, redoc_url=None, openapi_url=None)
     app.state.config = config
     app.state.source_factory = source_factory or (lambda: SyntheticInbox(config.fixture_path))
+    app.state.llm_factory = llm_factory or (lambda model: OllamaExtractor(config.ollama_url, model))
 
     @app.middleware("http")
     async def security_headers(request: Request, call_next):

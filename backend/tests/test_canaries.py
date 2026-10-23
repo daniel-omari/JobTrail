@@ -30,3 +30,16 @@ def test_no_raw_body_text_is_stored(client, config, inbox):
     stored = _db_and_log_bytes(config)
     # A distinctive sentence from an opened hiring email must not be persisted anywhere.
     assert b"our talent team will review it carefully" not in stored
+
+
+def test_canaries_never_sent_to_the_ai_model(make_client, config, inbox, stub_llm):
+    with make_client(llm=stub_llm) as c:
+        summary = c.post("/api/scan").json()
+    assert summary["mode"] == "llm"
+    assert len(stub_llm.requests) == summary["opened"]  # one request per opened email, nothing else
+    sent = "\n".join(stub_llm.requests)
+    for canary in all_canaries(inbox):
+        assert canary not in sent, f"{canary} was sent to the model"
+    stored = _db_and_log_bytes(config)
+    for canary in all_canaries(inbox):
+        assert canary.encode() not in stored

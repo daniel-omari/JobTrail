@@ -9,6 +9,7 @@ from ..logging_setup import get_logger, message_hash, short_hash
 from ..models import Extraction, ScanSummary
 from ..sources.base import Body, Header, InboxSource
 from . import rules
+from .extract_llm import LlmError, OllamaExtractor
 from .extract_rules import extract_fields, to_extraction
 from .gate import Gate
 from .html_text import split_text
@@ -28,13 +29,14 @@ def _context(conn: sqlite3.Connection, settings: dict) -> rules.RuleContext:
     )
 
 
-def process_opened(conn: sqlite3.Connection, header: Header, body: Body, ledger_id: int, summary: ScanSummary) -> str:
-    """Extract and store fields for one opened email. Returns outcome. The body goes out of scope here."""
-    visible, _hidden = split_text(body)
-    ex = to_extraction(extract_fields(visible, header))
-    if ex is None:
-        repo.ledger_set_stored(conn, ledger_id, "nothing stored (details could not be read)")
-        return "unreadable"
+def _quarantine(conn, header: Header, ledger_id: int, flags: list[dict], prefill: dict, summary: ScanSummary) -> str:
+    repo.quarantine_add(conn, header.id, header.sender, header.subject, header.date, flags, prefill, ledger_id)
+    repo.ledger_set_stored(conn, ledger_id, "quarantined: nothing added to tracker (" + ", ".join(f["code"] for f in flags) + ")")
+    summary.quarantined += 1
+    return "quarantined"
+
+
+def _store(conn, header: Header, ex: Extraction, ledger_id: int, summary: ScanSummary) -> str:
     source = rules.platform_for(header) or header.domain
     repo.record_event(conn, ex, header.date, source, rules.how_applied(source), message_hash(header.id))
     repo.ledger_set_stored(conn, ledger_id, stored_summary(ex))
@@ -42,11 +44,40 @@ def process_opened(conn: sqlite3.Connection, header: Header, body: Body, ledger_
     return "tracked"
 
 
-def run_scan(conn: sqlite3.Connection, source: InboxSource) -> ScanSummary:
+def process_opened(
+    conn: sqlite3.Connection, header: Header, body: Body, ledger_id: int, summary: ScanSummary,
+    llm: OllamaExtractor | None = None,
+) -> str:
+    """Extract and store fields for one opened email. Returns the outcome. The body goes out of scope here."""
+    visible, _hidden = split_text(body)
+    prefill = extract_fields(visible, header)  # rules-only answer: fallback, and pre-fill if quarantined
+
+    if llm is None:
+        ex = to_extraction(prefill)
+        if ex is None:
+            repo.ledger_set_stored(conn, ledger_id, "nothing stored (details could not be read)")
+            return "unreadable"
+        return _store(conn, header, ex, ledger_id, summary)
+
+    try:
+        ex = llm.extract(visible, header)
+    except LlmError as e:
+        flag = {
+            "code": "ai_invalid_output",
+            "reason": "AI output failed validation",
+            "excerpt": "",
+            "info": "The local AI's answer didn't match the strict format (three fields, fixed status list), "
+                    f"so it was not trusted. Detail: {e}",
+        }
+        return _quarantine(conn, header, ledger_id, [flag], prefill, summary)
+    return _store(conn, header, ex, ledger_id, summary)
+
+
+def run_scan(conn: sqlite3.Connection, source: InboxSource, llm: OllamaExtractor | None = None) -> ScanSummary:
     log = get_logger()
     settings = repo.get_settings(conn)
     ctx = _context(conn, settings)
-    summary = ScanSummary(mode="rules", defences=bool(settings["defences"]))
+    summary = ScanSummary(mode="llm" if llm else "rules", defences=bool(settings["defences"]))
     skipped = Counter()
     gate = Gate(source, conn)
 
@@ -69,7 +100,7 @@ def run_scan(conn: sqlite3.Connection, source: InboxSource) -> ScanSummary:
             continue
         ledger_id, body = gate.open(header, decision.reason)
         summary.opened += 1
-        outcome = process_opened(conn, header, body, ledger_id, summary)
+        outcome = process_opened(conn, header, body, ledger_id, summary, llm)
         del body
         repo.mark_seen(conn, h, "opened")
         log.info("scan.%s msg=%s", outcome, short_hash(header.id))

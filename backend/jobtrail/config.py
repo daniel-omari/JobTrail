@@ -11,7 +11,7 @@ REPO_DIR = BACKEND_DIR.parent
 HOST = "127.0.0.1"  # bind to loopback only: nothing else on the network can reach the app
 PORT = 8000
 OLLAMA_URL = "http://127.0.0.1:11434"
-DEFAULT_MODEL = "llama3.2:3b"
+DEFAULT_MODEL = "qwen2.5:7b"  # chosen by the learner after scripts/model_probe.py (17/17 extraction, 0.24s/email)
 
 
 @dataclass
