@@ -93,7 +93,7 @@ Build mode: fast. The learner chose it: "just discuss and ask me for the importa
   Learner check: Export this week, copy it, and download the CSV.
   Commit: `Add weekly UC journal export`
 
-- [ ] **9. Settings and startup behaviour**
+- [x] **9. Settings and startup behaviour**
   Becomes usable: Excluded labels, scan on startup, auto-clean days (or never), and local AI status. `python -m jobtrail` runs auto-clean and the optional startup scan, then opens the browser.
   Why now: These are refinements on top of working features.
   PRD ref: `prd.md > Settings`, `prd.md > States and Boundaries`
@@ -142,3 +142,4 @@ Activity mode:
 - The model comparison showed the hardened prompt alone did not stop the hidden-text attack once hidden text reached the model. This confirms the detector-before-model order. The real-model demo test (`pytest -m ollama`) passes with qwen2.5:7b.
 - Overview changed from three gauges to one segmented gauge (learner feedback at the early checkpoint). Blue now means "awaiting reply" so the segments add up, and "new applications sent" is shown as a line below. PRD `Overview` and spec open issues updated.
 - "Restore to Tracker" removes the misfiled Rejected/Closed event(s) rather than just un-archiving, so the Overview counts and export stay truthful. Redacted ledger lines also blank the stored company/role summary, not just the sender and subject.
+- Settings gained a headers-only `/api/labels` list, so labels in the inbox can be excluded with one click. The auto-clean minimum is 7 days, matching the clear guard.

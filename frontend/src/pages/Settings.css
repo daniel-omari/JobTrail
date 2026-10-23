@@ -1,7 +1,16 @@
-.setting { display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+.setting { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
 .setting p { margin: 0; max-width: 640px; }
+.demo-setting { border-color: var(--warning-border); }
 .switch { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; cursor: pointer; white-space: nowrap; }
 .switch input { width: 40px; height: 22px; appearance: none; background: #cfd5dd; border-radius: 999px; position: relative; cursor: pointer; transition: background 0.15s; margin: 0; }
 .switch input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; background: #fff; border-radius: 50%; transition: left 0.15s; }
 .switch input:checked { background: var(--proceeding); }
 .switch input:checked::after { left: 21px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; background: #eef2fb; color: var(--text); border-radius: 999px; padding: 4px 6px 4px 12px; font-size: 14px; font-weight: 500; }
+.chip button { border: none; background: none; color: var(--muted); font-size: 16px; cursor: pointer; line-height: 1; padding: 0 4px; }
+.chip-add { border: 1px dashed var(--border); background: #fff; padding: 2px 10px; margin: 0 4px 4px 0; cursor: pointer; font: inherit; font-size: 13px; }
+.chip-add:hover { background: #f1f3f6; }
+.row-inline { display: flex; gap: 8px; align-items: center; margin: 10px 0 8px; flex-wrap: wrap; }
+.row-inline input { font: inherit; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); }
+.row-inline input[type="number"] { width: 100px; }

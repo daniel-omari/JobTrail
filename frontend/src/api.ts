@@ -93,6 +93,7 @@ export const api = {
   quarantine: () => request<QuarantineItem[]>("/api/quarantine"),
   release: (id: number, f: Fields) => request<{ application_id: number }>(`/api/quarantine/${id}/release`, { method: "POST", body: JSON.stringify(f) }),
   discard: (id: number) => request<{ ok: boolean }>(`/api/quarantine/${id}/discard`, { method: "POST" }),
+  labels: () => request<string[]>("/api/labels"),
   settings: () => request<Settings>("/api/settings"),
   saveSettings: (s: Partial<Settings> & { auto_clean_never?: boolean }) => request<Settings>("/api/settings", { method: "PUT", body: JSON.stringify(s) }),
   exportSummary: (start: string, end: string) =>
