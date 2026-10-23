@@ -215,3 +215,17 @@ def scan_run_add(conn: sqlite3.Connection, s) -> None:
         "INSERT INTO scan_runs(ran_at, checked, opened, skipped, review, quarantined, mode, defences) VALUES(?,?,?,?,?,?,?,?)",
         (_now(), s.checked, s.opened, s.skipped, s.review, s.quarantined, s.mode, int(s.defences)),
     )
+
+
+def quarantine_get(conn: sqlite3.Connection, qid: int) -> dict | None:
+    r = conn.execute("SELECT * FROM quarantine WHERE id=?", (qid,)).fetchone()
+    if r is None:
+        return None
+    d = dict(r)
+    d["reasons"] = json.loads(d["reasons"])
+    d["rules_prefill"] = json.loads(d["rules_prefill"])
+    return d
+
+
+def quarantine_delete(conn: sqlite3.Connection, qid: int) -> None:
+    conn.execute("DELETE FROM quarantine WHERE id=?", (qid,))

@@ -9,10 +9,13 @@ from ..logging_setup import get_logger, message_hash, short_hash
 from ..models import Extraction, ScanSummary
 from ..sources.base import Body, Header, InboxSource
 from . import rules
+from .crosscheck import crosscheck
+from .detector import detect
 from .extract_llm import LlmError, OllamaExtractor
 from .extract_rules import extract_fields, to_extraction
 from .gate import Gate
-from .html_text import split_text
+from .html_text import raw_text, split_text
+from .rules import status_evidence
 
 
 def stored_summary(ex: Extraction) -> str:
@@ -46,11 +49,28 @@ def _store(conn, header: Header, ex: Extraction, ledger_id: int, summary: ScanSu
 
 def process_opened(
     conn: sqlite3.Connection, header: Header, body: Body, ledger_id: int, summary: ScanSummary,
-    llm: OllamaExtractor | None = None,
+    llm: OllamaExtractor | None = None, defences: bool = True,
 ) -> str:
     """Extract and store fields for one opened email. Returns the outcome. The body goes out of scope here."""
     visible, _hidden = split_text(body)
-    prefill = extract_fields(visible, header)  # rules-only answer: fallback, and pre-fill if quarantined
+    prefill = extract_fields(visible, header)  # rules-only answer: fallback, and the pre-fill if quarantined
+
+    if not defences:
+        # DEMO ONLY: what an undefended integration does. Raw body (hidden text included) straight into a
+        # naive prompt, no detector, no cross-check; whatever the model says is stored.
+        try:
+            ex = llm.extract_naive(raw_text(body), header) if llm else to_extraction(extract_fields(raw_text(body), header))
+        except LlmError:
+            ex = None
+        if ex is None:
+            repo.ledger_set_stored(conn, ledger_id, "nothing stored (details could not be read)")
+            return "unreadable"
+        return _store(conn, header, ex, ledger_id, summary)
+
+    # Layer 1: injection detector, before any AI sees the email.
+    flags = detect(body)
+    if flags:
+        return _quarantine(conn, header, ledger_id, flags, prefill, summary)
 
     if llm is None:
         ex = to_extraction(prefill)
@@ -59,6 +79,7 @@ def process_opened(
             return "unreadable"
         return _store(conn, header, ex, ledger_id, summary)
 
+    # Layer 2: strict-format extraction from VISIBLE text only, with a hardened prompt.
     try:
         ex = llm.extract(visible, header)
     except LlmError as e:
@@ -70,6 +91,11 @@ def process_opened(
                     f"so it was not trusted. Detail: {e}",
         }
         return _quarantine(conn, header, ledger_id, [flag], prefill, summary)
+
+    # Layer 3: cross-check the AI against the rules' independent reading of the email.
+    flags = crosscheck(ex, status_evidence(visible, header.subject), header, visible)
+    if flags:
+        return _quarantine(conn, header, ledger_id, flags, prefill, summary)
     return _store(conn, header, ex, ledger_id, summary)
 
 
@@ -100,9 +126,9 @@ def run_scan(conn: sqlite3.Connection, source: InboxSource, llm: OllamaExtractor
             continue
         ledger_id, body = gate.open(header, decision.reason)
         summary.opened += 1
-        outcome = process_opened(conn, header, body, ledger_id, summary, llm)
+        outcome = process_opened(conn, header, body, ledger_id, summary, llm, defences=summary.defences)
         del body
-        repo.mark_seen(conn, h, "opened")
+        repo.mark_seen(conn, h, "quarantined" if outcome == "quarantined" else "opened")
         log.info("scan.%s msg=%s", outcome, short_hash(header.id))
         conn.commit()
 

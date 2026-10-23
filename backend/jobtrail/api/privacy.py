@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import sqlite3
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from .. import repo
+from ..cleanup import delete_all as _delete_all
 from .deps import get_conn
 
 router = APIRouter(prefix="/api")
@@ -19,3 +20,11 @@ def ledger(conn: sqlite3.Connection = Depends(get_conn)) -> dict:
         "skipped_unopened_total": totals["skipped"],
         "last_scan": dict(last) if last else None,
     }
+
+
+@router.post("/delete-all")
+def delete_all(confirm: bool = False, conn: sqlite3.Connection = Depends(get_conn)) -> dict:
+    if not confirm:
+        raise HTTPException(400, "Pass confirm=true to delete everything")
+    _delete_all(conn)
+    return {"ok": True}

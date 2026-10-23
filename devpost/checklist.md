@@ -29,7 +29,7 @@ Build mode: fast. The learner chose it: "just discuss and ask me for the importa
   Learner check: Look at the probe output and choose the model. Stop Ollama, reload, and see the banner.
   Commit: `Add strict local-LLM extraction with rules-only fallback`
 
-- [ ] **3. The attack is caught: defences on/off and Quarantine**
+- [x] **3. The attack is caught: defences on/off and Quarantine**
   Becomes usable: With defences off, the hidden-text rejection becomes an Offer in the Tracker. With defences on, it lands in Quarantine with its reason, excerpt and an Info tip, and nothing else changes. Release (pre-filled from the rules) and Discard work. An amber banner shows while defences are off.
   Why now: This completes the kernel's second layer and the video's "oh, that's cool" beat. It's built before any polish.
   PRD ref: `prd.md > Quarantine`, `prd.md > Defence Demo`, `prd.md > Settings` (defences toggle)
@@ -138,3 +138,5 @@ Activity mode:
 
 - Fixture dates are stored as `days_ago` instead of absolute dates — absolute dates would go stale before judging, breaking the This week / This month views.
 - Scan summary gained an `already_seen` count, so rescans don't report previously opened emails as "skipped unopened".
+- Delete all (backend + Privacy button with confirm) was pulled forward from slice 7 into slice 3, because the defence demo needs a reset between the defences-off and defences-on runs. Slice 7 still adds the everything-we-hold view and the file-bytes test.
+- The model comparison showed the hardened prompt alone did not stop the hidden-text attack once hidden text reached the model. This confirms the detector-before-model order. The real-model demo test (`pytest -m ollama`) passes with qwen2.5:7b.

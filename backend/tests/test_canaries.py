@@ -36,7 +36,8 @@ def test_canaries_never_sent_to_the_ai_model(make_client, config, inbox, stub_ll
     with make_client(llm=stub_llm) as c:
         summary = c.post("/api/scan").json()
     assert summary["mode"] == "llm"
-    assert len(stub_llm.requests) == summary["opened"]  # one request per opened email, nothing else
+    # One request per opened email that passed the detector; nothing else ever goes to the model.
+    assert len(stub_llm.requests) == summary["opened"] - summary["quarantined"]
     sent = "\n".join(stub_llm.requests)
     for canary in all_canaries(inbox):
         assert canary not in sent, f"{canary} was sent to the model"

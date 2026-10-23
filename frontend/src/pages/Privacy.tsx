@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api, type LedgerResponse } from "../api";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 import { EmptyState } from "../components/EmptyState";
 import { useScan } from "../scan-context";
 
@@ -9,8 +10,9 @@ const RULES: Record<string, string> = {
 };
 
 export function Privacy() {
-  const { version } = useScan();
+  const { version, refresh } = useScan();
   const [data, setData] = useState<LedgerResponse | null>(null);
+  const [confirming, setConfirming] = useState(false);
   useEffect(() => { api.ledger().then(setData); }, [version]);
 
   return (
@@ -20,7 +22,15 @@ export function Privacy() {
           <h1>Privacy</h1>
           <p className="muted">Every email JobTrail opened, why it opened it, and exactly what it kept. Everything else is skipped without being read.</p>
         </div>
+        <button className="btn btn-danger" onClick={() => setConfirming(true)}>Delete all</button>
       </div>
+      <ConfirmDialog
+        open={confirming} title="Delete everything JobTrail holds?" confirmLabel="Delete all" danger
+        onCancel={() => setConfirming(false)}
+        onConfirm={async () => { await api.deleteAll(); setConfirming(false); refresh(); }}
+      >
+        This permanently removes every application, the access ledger, review and quarantine items, and your settings from this computer. It can't be undone.
+      </ConfirmDialog>
       {data && (
         <div className="card">
           <h2>Access ledger</h2>
