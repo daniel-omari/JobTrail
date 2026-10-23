@@ -1,0 +1,24 @@
+# Personal learning context (Devpost Learn) - kept out of commits by default
+/devpost/learner-profile.md
+
+# Personal handoff brief (contains personal circumstances) - remove this line if you want it public
+/PROJECT_BRIEF.md
+
+# Local credentials - never commit; a secret-free .env.example is allowed
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+
+# App data (local database and logs)
+backend/data/
+
+# Frontend
+node_modules/
+frontend/dist/
