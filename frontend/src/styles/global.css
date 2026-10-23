@@ -42,3 +42,15 @@ table.data tr:last-child td { border-bottom: none; }
 .banner-warning { background: var(--warning-bg); border-color: var(--warning-border); color: var(--warning-text); }
 .banner-info { background: var(--info-bg); border-color: var(--info-border); color: #1e3a8a; }
 .banner-inner { max-width: 1080px; margin: 0 auto; }
+
+.held { border-top: 1px solid var(--border); }
+.held summary { display: flex; justify-content: space-between; padding: 12px 4px; cursor: pointer; font-weight: 600; list-style: none; }
+.held summary::-webkit-details-marker { display: none; }
+.held summary::before { content: "▸"; color: var(--faint); margin-right: 8px; }
+.held[open] summary::before { content: "▾"; }
+.held summary span:first-of-type { flex: 1; }
+.held-count { color: var(--muted); font-weight: 600; }
+.held-body { padding: 0 4px 12px 24px; font-size: 14px; }
+.held-body ul { margin: 0; padding-left: 18px; }
+.held-body pre { background: #f6f7f9; padding: 10px; border-radius: var(--radius-sm); overflow-x: auto; }
+.held-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }

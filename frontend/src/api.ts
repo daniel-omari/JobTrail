@@ -52,6 +52,14 @@ export interface Settings {
   auto_clean_days: number | null; model: string | null;
 }
 
+export interface Everything {
+  applications: Application[]; ledger: LedgerEntry[]; review_queue: ReviewItem[];
+  quarantine: { sender: string; subject: string; received_date: string; reasons: { reason: string; excerpt: string }[] }[];
+  trusted_senders: string[]; rejected_senders: string[]; do_not_track: { company: string; role: string }[];
+  settings: Settings; processed_email_fingerprints: number;
+  scan_runs: { ran_at: string; checked: number; opened: number; skipped: number; review: number; quarantined: number; mode: string; defences: number }[];
+}
+
 export interface ReviewItem { id: number; sender: string; subject: string; received_date: string }
 
 export interface Fields { company: string; role: string; status: Status }
@@ -87,5 +95,6 @@ export const api = {
   discard: (id: number) => request<{ ok: boolean }>(`/api/quarantine/${id}/discard`, { method: "POST" }),
   settings: () => request<Settings>("/api/settings"),
   saveSettings: (s: Partial<Settings> & { auto_clean_never?: boolean }) => request<Settings>("/api/settings", { method: "PUT", body: JSON.stringify(s) }),
+  everything: () => request<Everything>("/api/everything"),
   deleteAll: () => request<{ ok: boolean }>("/api/delete-all?confirm=true", { method: "POST" }),
 };

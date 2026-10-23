@@ -73,7 +73,7 @@ Build mode: fast. The learner chose it: "just discuss and ask me for the importa
   Learner check: Add, edit and delete an entry. Mark one "don't track". Clear the archive, and confirm the last week's rejections remain.
   Commit: `Add full tracker, archive tools and ledger redaction`
 
-- [ ] **7. Privacy page complete and Delete all**
+- [x] **7. Privacy page complete and Delete all**
   Becomes usable: "Everything we hold about you" lists every stored item by type. Delete all (after a confirmation) wipes everything, including leftover text inside the DB file.
   Why now: This completes the trust story the video relies on ("prove it").
   PRD ref: `prd.md > Privacy`

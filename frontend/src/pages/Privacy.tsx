@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { api, type LedgerResponse } from "../api";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { EmptyState } from "../components/EmptyState";
+import { HeldData } from "../components/HeldData";
 import { useScan } from "../scan-context";
 
 const RULES: Record<string, string> = {
@@ -59,6 +60,7 @@ export function Privacy() {
           )}
         </div>
       )}
+      <HeldData />
     </div>
   );
 }
