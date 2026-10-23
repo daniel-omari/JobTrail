@@ -31,6 +31,13 @@ export interface AppStatus {
   review_count: number; quarantine_count: number;
 }
 
+export type Range = "week" | "month" | "all";
+
+export interface OverviewData {
+  range: Range; start: string | null; end: string;
+  sent: number; proceeding: number; rejected: number; active: number; total_all_time: number;
+}
+
 export interface Flag { code: string; reason: string; excerpt: string; info: string }
 
 export interface QuarantineItem {
@@ -59,6 +66,7 @@ export const api = {
   status: () => request<AppStatus>("/api/status"),
   applications: (archived = false) => request<Application[]>(`/api/applications?archived=${archived}`),
   ledger: () => request<LedgerResponse>("/api/ledger"),
+  overview: (range: Range) => request<OverviewData>(`/api/overview?range=${range}`),
   quarantine: () => request<QuarantineItem[]>("/api/quarantine"),
   release: (id: number, f: Fields) => request<{ application_id: number }>(`/api/quarantine/${id}/release`, { method: "POST", body: JSON.stringify(f) }),
   discard: (id: number) => request<{ ok: boolean }>(`/api/quarantine/${id}/discard`, { method: "POST" }),

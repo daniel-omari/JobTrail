@@ -39,7 +39,7 @@ Build mode: fast. The learner chose it: "just discuss and ask me for the importa
   Learner check: Toggle defences off, scan, and see the false Offer. Delete it, toggle defences on, scan again, and open Quarantine.
   Commit: `Detect and quarantine injected emails with demo defences toggle`
 
-- [ ] **4. Overview dashboard with time filters**
+- [x] **4. Overview dashboard with time filters**
   Becomes usable: Overview shows three half-circle gauges (sent, proceeding and rejected, in the agreed colours) with exact counts. This week (the default), This month and All time update them. There's an empty-state prompt, and a scan summary appears after Scan Now, along with the hover tooltip.
   Why now: This is the first screen of the journey and the main design surface, and design is judged. It goes before the early hands-on checkpoint so the look can be adjusted before the remaining pages copy it.
   PRD ref: `prd.md > Overview`, `prd.md > Look and Feel`, `prd.md > Scanning` (scan summary, tooltip)

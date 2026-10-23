@@ -1,0 +1,14 @@
+.gauges { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 760px) { .gauges { grid-template-columns: 1fr; } }
+.gauges .card { margin: 0; padding: 24px 20px 20px; }
+.gauge { margin: 0; text-align: center; }
+.gauge svg { width: 100%; max-width: 240px; display: block; margin: 0 auto; }
+.gauge-number { font-size: 40px; font-weight: 800; font-family: var(--font); letter-spacing: -0.02em; }
+.gauge-label { font-weight: 700; font-size: 16px; margin-top: 4px; }
+.gauge-caption { color: var(--muted); font-size: 13px; }
+.segmented { display: inline-flex; background: #eceff3; border-radius: 10px; padding: 3px; }
+.segmented button { font: inherit; font-size: 14px; font-weight: 600; border: none; background: none; color: var(--muted); padding: 7px 14px; border-radius: 8px; cursor: pointer; }
+.segmented button.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(16,24,40,0.12); }
+.last-scan { margin-top: 16px; text-align: center; }
+.overview-empty { padding: 56px 24px; }
+.overview-empty p { max-width: 460px; margin: 0 auto 16px; }
