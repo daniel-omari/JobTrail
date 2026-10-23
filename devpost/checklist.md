@@ -115,7 +115,7 @@ Build mode: fast. The learner chose it: "just discuss and ask me for the importa
 
 ## Hands-on Checkpoints
 
-- [ ] Early usable behavior explored — after slice 4 (scan, ledger, attack demo, Overview look)
+- [x] Early usable behavior explored — after slice 4 (scan, ledger, attack demo, Overview look). Feedback: wanted one combined gauge, not three. Done: a segmented gauge with blue = awaiting reply, and a legend with counts.
 - [ ] Final kick-the-tires exploration and feedback completed
 
 ## Final Review
@@ -140,3 +140,4 @@ Activity mode:
 - Scan summary gained an `already_seen` count, so rescans don't report previously opened emails as "skipped unopened".
 - Delete all (backend + Privacy button with confirm) was pulled forward from slice 7 into slice 3, because the defence demo needs a reset between the defences-off and defences-on runs. Slice 7 still adds the everything-we-hold view and the file-bytes test.
 - The model comparison showed the hardened prompt alone did not stop the hidden-text attack once hidden text reached the model. This confirms the detector-before-model order. The real-model demo test (`pytest -m ollama`) passes with qwen2.5:7b.
+- Overview changed from three gauges to one segmented gauge (learner feedback at the early checkpoint). Blue now means "awaiting reply" so the segments add up, and "new applications sent" is shown as a line below. PRD `Overview` and spec open issues updated.

@@ -36,6 +36,7 @@ export type Range = "week" | "month" | "all";
 export interface OverviewData {
   range: Range; start: string | null; end: string;
   sent: number; proceeding: number; rejected: number; active: number; total_all_time: number;
+  awaiting_now: number; proceeding_now: number; ended_now: number;
 }
 
 export interface Flag { code: string; reason: string; excerpt: string; info: string }

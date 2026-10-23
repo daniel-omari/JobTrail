@@ -407,6 +407,6 @@ Finding: the hardened prompt alone did not stop the hidden-text attack, because 
 - Model choice (the ~3B vs ~8B test).
 
 **Carried from the PRD:**
-- One gauge per count vs a single segmented half-circle. Planned as **one gauge per count**; the PRD says it can wait for the build.
+- Gauge design: **resolved in the build as one segmented half-circle** (learner choice). The segments use each active application's current stage (`awaiting_now`, `proceeding_now`, `ended_now` from `/api/overview`).
 
 **Hackathon requirement:** `scope.md`, `prd.md` and `spec.md` live in `devpost/`. Confirm in `6-ship` that this placement satisfies "the repo must include" them (copy them to the repo root if needed).

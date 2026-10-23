@@ -52,3 +52,10 @@ def test_week_starts_on_monday():
 def test_empty_state(client):
     got = client.get("/api/overview?range=all").json()
     assert got["total_all_time"] == 0 and got["sent"] == 0
+
+
+@pytest.mark.parametrize("rng", ["week", "month", "all"])
+def test_single_gauge_segments_add_up(client, rng):
+    client.post("/api/scan")
+    got = client.get(f"/api/overview?range={rng}").json()
+    assert got["awaiting_now"] + got["proceeding_now"] + got["ended_now"] == got["active"] > 0

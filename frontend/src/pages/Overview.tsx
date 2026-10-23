@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api, type LedgerResponse, type OverviewData, type Range } from "../api";
-import { Gauge } from "../components/Gauge";
+import { SegmentedGauge } from "../components/Gauge";
 import { useScan } from "../scan-context";
 import "./Overview.css";
 
@@ -34,7 +34,11 @@ export function Overview() {
     );
   }
 
-  const caption = `of ${data.active} application${data.active === 1 ? "" : "s"} with activity ${PERIOD[range]}`;
+  const segments = [
+    { value: data.proceeding_now, color: "var(--proceeding)", label: "Proceeding", hint: "Assessment, interview or offer" },
+    { value: data.awaiting_now, color: "var(--sent)", label: "Awaiting reply", hint: "Sent, no outcome yet" },
+    { value: data.ended_now, color: "var(--rejected)", label: "Rejected / no response", hint: "Rejected or role closed" },
+  ];
   const last = ledger?.last_scan;
   return (
     <div className="page">
@@ -48,11 +52,32 @@ export function Overview() {
           ))}
         </div>
       </div>
-      <div className="gauges">
-        <div className="card"><Gauge value={data.sent} of={data.active} color="var(--sent)" label="Applications sent" caption={caption} /></div>
-        <div className="card"><Gauge value={data.proceeding} of={data.active} color="var(--proceeding)" label="Proceeding" caption="Assessment, interview or offer" /></div>
-        <div className="card"><Gauge value={data.rejected} of={data.active} color="var(--rejected)" label="Rejected / no response" caption="Rejected or role closed" /></div>
+
+      <div className="card overview-card">
+        {data.active === 0 ? (
+          <div className="empty"><h2>No activity {PERIOD[range]}</h2><p>Try This month or All time.</p></div>
+        ) : (
+          <>
+            <SegmentedGauge segments={segments} total={data.active} centreLabel={`applications ${PERIOD[range]}`} />
+            <div className="legend">
+              {segments.map((s) => (
+                <div className="legend-item" key={s.label}>
+                  <span className="legend-dot" style={{ background: s.color }} />
+                  <div>
+                    <div className="legend-count" style={{ color: s.color }}>{s.value}</div>
+                    <div className="legend-label">{s.label}</div>
+                    <div className="legend-hint">{s.hint}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="sent-line">
+              <strong style={{ color: "var(--sent)" }}>{data.sent}</strong> new application{data.sent === 1 ? "" : "s"} sent {PERIOD[range]}
+            </p>
+          </>
+        )}
       </div>
+
       {last && (
         <p className="small muted last-scan">
           Last scan {new Date(last.ran_at).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}:

@@ -41,17 +41,17 @@ A top navigation bar on every page: **Overview · Tracker · Review · Quarantin
 ## Features and Behavior
 
 ### Overview
-- Shows three counts with half-circle visuals:
-  - **Applications sent** (blue): every application tracked, including later-rejected ones.
-  - **Proceeding** (green): Assessment, Interview or Offer.
-  - **Rejected / No response** (`#cf2344`): Rejected or Closed.
-- The gauges use exact numbers, not just percentages.
-- **Time filter buttons:** **This week** (the default when the app opens) · **This month** · **All time**. Clicking one updates all three gauges straight away. The active button is highlighted.
+- **One half-circle gauge split into three coloured segments** that add up to the whole, so the proportions are visible at a glance (revised at the build's early hands-on check):
+  - **Proceeding** (green): current stage Assessment, Interview or Offer.
+  - **Awaiting reply** (blue): sent, no outcome yet.
+  - **Rejected / no response** (`#cf2344`): Rejected or Closed.
+- The centre shows the total number of applications with activity in the period. A legend shows each segment's exact count. A line below shows **new applications sent** in the period.
+- **Time filter buttons:** **This week** (the default when the app opens) · **This month** · **All time**. Clicking one updates the gauge straight away. The active button is highlighted.
   - This week = Monday to today. This month = the calendar month. All time = all Tracker data, including the archive.
-  - Each count uses the date its event happened: a rejection received this week counts this week, even if the application was sent last month.
+  - An application counts in a period if any of its events happened in that period. It is coloured by its current stage. "New applications sent" counts applications whose first event falls in the period.
+- The empty state reads "No applications yet. Run your first scan", next to the Scan Now button.
+- [ ] After scanning the synthetic inbox, the three segments add up to the total and match the fixture expectations.
 - [ ] Switching filters changes the counts to match the fixture dates, and "This week" is selected on launch.
-- The empty state reads "No applications yet. Run your first scan" next to the Scan Now button.
-- [ ] After scanning the synthetic inbox, the counts match the expected fixture totals.
 
 ### Scanning
 Source: `scope.md > The POC Boundary`.
@@ -141,6 +141,7 @@ Source: `scope.md > What "Working" Looks Like`.
 ## Product Decisions
 - **Overview shows counts only; details live in the Tracker.** Keeps the dashboard minimal.
 - **Overview time filter: This week (default) / This month / All time.** Lets the user see just this past week at a glance.
+- **A single segmented gauge instead of three.** The colours exist to compare outcomes on one graph. Blue therefore means "awaiting reply", so the segments add up; the sent count moved to a line below.
 - **Proceeding = Assessment, Interview and Offer combined on the Overview.** Keeps it simple; the Tracker badge shows the exact stage.
 - **Rejected/Closed go to a separate archive, newest first, grouped by month.** The list gets big; it acts like an organised recycling bin.
 - **Clear keeps the last week by default, and Force Clean warns.** Protects the UC export.
@@ -173,4 +174,4 @@ Every page and behaviour under **Features and Behavior**, run on the synthetic i
 - **[Confirmed at review]** The scan summary wording and the tracker row fields listed above were filled in by Claude from your descriptions.
 - **[Confirmed at review]** "Don't track this" matches on company + role.
 - **[Confirmed at review]** The Privacy page holds the ledger, "everything we hold" and Delete all; Settings holds the defences toggle.
-- **[Can wait for build]** One gauge per count, or a single segmented half-circle.
+- **[Resolved in build]** A single segmented half-circle (learner choice at the early hands-on check).
