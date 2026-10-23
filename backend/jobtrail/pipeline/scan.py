@@ -99,6 +99,21 @@ def process_opened(
     return _store(conn, header, ex, ledger_id, summary)
 
 
+def open_and_process(
+    conn: sqlite3.Connection, gate: Gate, header: Header, rule: str, summary: ScanSummary,
+    llm: OllamaExtractor | None,
+) -> str:
+    """Open one email through the Gate (ledger first), process it, and record that it was seen."""
+    ledger_id, body = gate.open(header, rule)
+    summary.opened += 1
+    outcome = process_opened(conn, header, body, ledger_id, summary, llm, defences=summary.defences)
+    del body
+    repo.mark_seen(conn, message_hash(header.id), "quarantined" if outcome == "quarantined" else "opened")
+    get_logger().info("scan.%s msg=%s", outcome, short_hash(header.id))
+    conn.commit()
+    return outcome
+
+
 def run_scan(conn: sqlite3.Connection, source: InboxSource, llm: OllamaExtractor | None = None) -> ScanSummary:
     log = get_logger()
     settings = repo.get_settings(conn)
@@ -124,13 +139,7 @@ def run_scan(conn: sqlite3.Connection, source: InboxSource, llm: OllamaExtractor
             summary.review += 1
             log.info("scan.review msg=%s", short_hash(header.id))
             continue
-        ledger_id, body = gate.open(header, decision.reason)
-        summary.opened += 1
-        outcome = process_opened(conn, header, body, ledger_id, summary, llm, defences=summary.defences)
-        del body
-        repo.mark_seen(conn, h, "quarantined" if outcome == "quarantined" else "opened")
-        log.info("scan.%s msg=%s", outcome, short_hash(header.id))
-        conn.commit()
+        open_and_process(conn, gate, header, decision.reason, summary, llm)
 
     summary.skipped_by_reason = dict(skipped)
     repo.scan_run_add(conn, summary)

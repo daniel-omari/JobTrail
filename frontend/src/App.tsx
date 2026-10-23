@@ -6,6 +6,7 @@ import { Overview } from "./pages/Overview";
 import { Placeholder } from "./pages/Placeholder";
 import { Privacy } from "./pages/Privacy";
 import { Quarantine } from "./pages/Quarantine";
+import { Review } from "./pages/Review";
 import { Settings } from "./pages/Settings";
 import { Tracker } from "./pages/Tracker";
 import { ScanProvider } from "./scan-context";
@@ -19,7 +20,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Overview />} />
           <Route path="/tracker" element={<Tracker />} />
-          <Route path="/review" element={<Placeholder title="Review" />} />
+          <Route path="/review" element={<Review />} />
           <Route path="/quarantine" element={<Quarantine />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/export" element={<Placeholder title="Export" />} />

@@ -52,6 +52,8 @@ export interface Settings {
   auto_clean_days: number | null; model: string | null;
 }
 
+export interface ReviewItem { id: number; sender: string; subject: string; received_date: string }
+
 export interface Fields { company: string; role: string; status: Status }
 
 export const STATUSES: Status[] = ["Applied", "Assessment", "Interview", "Offer", "Rejected", "Closed"];
@@ -68,6 +70,9 @@ export const api = {
   applications: (archived = false) => request<Application[]>(`/api/applications?archived=${archived}`),
   ledger: () => request<LedgerResponse>("/api/ledger"),
   overview: (range: Range) => request<OverviewData>(`/api/overview?range=${range}`),
+  review: () => request<ReviewItem[]>("/api/review"),
+  approve: (id: number) => request<{ outcome: string }>(`/api/review/${id}/approve`, { method: "POST" }),
+  reject: (id: number) => request<{ outcome: string }>(`/api/review/${id}/reject`, { method: "POST" }),
   quarantine: () => request<QuarantineItem[]>("/api/quarantine"),
   release: (id: number, f: Fields) => request<{ application_id: number }>(`/api/quarantine/${id}/release`, { method: "POST", body: JSON.stringify(f) }),
   discard: (id: number) => request<{ ok: boolean }>(`/api/quarantine/${id}/discard`, { method: "POST" }),

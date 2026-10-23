@@ -229,3 +229,28 @@ def quarantine_get(conn: sqlite3.Connection, qid: int) -> dict | None:
 
 def quarantine_delete(conn: sqlite3.Connection, qid: int) -> None:
     conn.execute("DELETE FROM quarantine WHERE id=?", (qid,))
+
+
+def review_get(conn: sqlite3.Connection, rid: int) -> dict | None:
+    r = conn.execute("SELECT * FROM review_queue WHERE id=?", (rid,)).fetchone()
+    return dict(r) if r else None
+
+
+def review_remove_sender(conn: sqlite3.Connection, sender: str) -> list[str]:
+    ids = [r["message_id"] for r in conn.execute("SELECT message_id FROM review_queue WHERE sender=?", (sender,))]
+    conn.execute("DELETE FROM review_queue WHERE sender=?", (sender,))
+    return ids
+
+
+def review_delete(conn: sqlite3.Connection, rid: int) -> None:
+    conn.execute("DELETE FROM review_queue WHERE id=?", (rid,))
+
+
+def trust_sender(conn: sqlite3.Connection, address: str) -> None:
+    conn.execute("INSERT OR IGNORE INTO trusted_senders(address) VALUES(?)", (address,))
+    conn.execute("DELETE FROM rejected_senders WHERE address=?", (address,))
+
+
+def reject_sender(conn: sqlite3.Connection, address: str) -> None:
+    conn.execute("INSERT OR IGNORE INTO rejected_senders(address) VALUES(?)", (address,))
+    conn.execute("DELETE FROM trusted_senders WHERE address=?", (address,))

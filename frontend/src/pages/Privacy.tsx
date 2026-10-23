@@ -6,7 +6,8 @@ import { useScan } from "../scan-context";
 
 const RULES: Record<string, string> = {
   known_platform: "Known recruiting platform",
-  trusted_sender: "Sender you approved",
+  trusted_sender: "Sender you approved earlier",
+  approved_by_you: "You approved it in Review",
 };
 
 export function Privacy() {
