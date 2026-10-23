@@ -254,3 +254,46 @@ def trust_sender(conn: sqlite3.Connection, address: str) -> None:
 def reject_sender(conn: sqlite3.Connection, address: str) -> None:
     conn.execute("INSERT OR IGNORE INTO rejected_senders(address) VALUES(?)", (address,))
     conn.execute("DELETE FROM trusted_senders WHERE address=?", (address,))
+
+
+def get_application(conn: sqlite3.Connection, app_id: int) -> dict | None:
+    for a in list_applications(conn):
+        if a["id"] == app_id:
+            return a
+    return None
+
+
+def update_application(conn: sqlite3.Connection, app_id: int, company: str | None, role: str | None,
+                       how_applied: str | None) -> None:
+    sets, params = [], []
+    for col, val in (("company", company), ("role", role), ("how_applied", how_applied)):
+        if val is not None:
+            sets.append(f"{col}=?")
+            params.append(val)
+    if sets:
+        sets.append("updated_at=?")
+        params += [_now(), app_id]
+        conn.execute(f"UPDATE applications SET {', '.join(sets)} WHERE id=?", params)  # noqa: S608 - fixed columns
+
+
+def add_stage(conn: sqlite3.Connection, app_id: int, status: Status, on: date) -> None:
+    conn.execute("INSERT INTO events(application_id, status, event_date, message_hash) VALUES(?,?,?,NULL)",
+                 (app_id, status.value, on.isoformat()))
+    _refresh_current_status(conn, app_id)
+
+
+def restore_application(conn: sqlite3.Connection, app_id: int) -> None:
+    """A misfiled rejection/closure: remove the ending event(s) and return the application to the active list."""
+    conn.execute("DELETE FROM events WHERE application_id=? AND status IN ('Rejected','Closed')", (app_id,))
+    if conn.execute("SELECT COUNT(*) FROM events WHERE application_id=?", (app_id,)).fetchone()[0] == 0:
+        conn.execute("INSERT INTO events(application_id, status, event_date, message_hash) VALUES(?,?,?,NULL)",
+                     (app_id, Status.APPLIED.value, date.today().isoformat()))
+    _refresh_current_status(conn, app_id)
+
+
+def add_do_not_track(conn: sqlite3.Connection, company: str, role: str) -> None:
+    conn.execute("INSERT OR IGNORE INTO do_not_track(company, role) VALUES(?,?)", (company, role))
+
+
+def is_do_not_track(conn: sqlite3.Connection, company: str, role: str) -> bool:
+    return any(_norm(c) == _norm(company) and _norm(r) == _norm(role) for c, r in do_not_track_list(conn))

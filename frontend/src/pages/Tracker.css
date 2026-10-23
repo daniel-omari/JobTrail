@@ -1,0 +1,28 @@
+table.clickable tbody tr { cursor: pointer; }
+table.clickable tbody tr:hover td { background: #f8f9fb; }
+table.clickable tbody tr:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+.manual { margin-left: 8px; font-size: 11px; padding: 1px 7px; }
+.archive-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+.archive-head select, .app-form select, .app-form input { font: inherit; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fff; color: var(--text); }
+.month { margin-top: 14px; }
+.month-label { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.row-actions { display: flex; gap: 8px; align-items: center; }
+.row-actions.wrap { flex-wrap: wrap; }
+.app-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; align-items: end; }
+.app-form label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.app-form .row-actions, .app-form .form-error { grid-column: 1 / -1; }
+.form-error { color: var(--rejected); font-size: 13px; margin: 0; }
+.scrim { position: fixed; inset: 0; background: rgba(16, 24, 40, 0.25); z-index: 40; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(440px, 100%); background: var(--surface); border-left: 1px solid var(--border); box-shadow: -12px 0 32px rgba(16,24,40,0.12); padding: 24px; overflow-y: auto; z-index: 41; }
+.drawer .app-form { grid-template-columns: 1fr; }
+.drawer-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.drawer-title { font-size: 20px; font-weight: 700; }
+.facts { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; margin: 0 0 20px; font-size: 14px; }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; }
+.timeline { list-style: none; padding: 0; margin: 0 0 20px; }
+.timeline li { display: flex; align-items: center; gap: 10px; padding: 6px 0; font-size: 14px; }
+.tl-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--sent); flex: none; }
+.tl-Assessment, .tl-Interview, .tl-Offer { background: var(--proceeding); }
+.tl-Rejected { background: var(--rejected); }
+.tl-Closed { background: var(--faint); }

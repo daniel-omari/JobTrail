@@ -40,6 +40,9 @@ def _quarantine(conn, header: Header, ledger_id: int, flags: list[dict], prefill
 
 
 def _store(conn, header: Header, ex: Extraction, ledger_id: int, summary: ScanSummary) -> str:
+    if repo.is_do_not_track(conn, ex.company, ex.role):
+        repo.ledger_set_stored(conn, ledger_id, "nothing stored (you chose not to track this application)")
+        return "do_not_track"
     source = rules.platform_for(header) or header.domain
     repo.record_event(conn, ex, header.date, source, rules.how_applied(source), message_hash(header.id))
     repo.ledger_set_stored(conn, ledger_id, stored_summary(ex))

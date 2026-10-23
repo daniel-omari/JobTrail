@@ -70,6 +70,15 @@ export const api = {
   applications: (archived = false) => request<Application[]>(`/api/applications?archived=${archived}`),
   ledger: () => request<LedgerResponse>("/api/ledger"),
   overview: (range: Range) => request<OverviewData>(`/api/overview?range=${range}`),
+  addApplication: (a: Fields & { date?: string; how_applied?: string }) =>
+    request<Application>("/api/applications", { method: "POST", body: JSON.stringify(a) }),
+  editApplication: (id: number, a: Partial<Fields> & { how_applied?: string }) =>
+    request<Application>(`/api/applications/${id}`, { method: "PATCH", body: JSON.stringify(a) }),
+  deleteApplication: (id: number) => request<{ ok: boolean }>(`/api/applications/${id}`, { method: "DELETE" }),
+  doNotTrack: (id: number) => request<{ ok: boolean }>(`/api/applications/${id}/do-not-track`, { method: "POST" }),
+  restore: (id: number) => request<Application>(`/api/applications/${id}/restore`, { method: "POST" }),
+  clearArchive: (olderThan: number) => request<{ removed: number }>(`/api/archive/clear?older_than=${olderThan}`, { method: "POST" }),
+  forceClean: () => request<{ removed: number }>("/api/archive/force-clean?confirm=true", { method: "POST" }),
   review: () => request<ReviewItem[]>("/api/review"),
   approve: (id: number) => request<{ outcome: string }>(`/api/review/${id}/approve`, { method: "POST" }),
   reject: (id: number) => request<{ outcome: string }>(`/api/review/${id}/reject`, { method: "POST" }),
