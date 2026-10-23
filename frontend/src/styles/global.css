@@ -2,6 +2,7 @@
 html, body { margin: 0; }
 body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
 a { color: var(--primary); text-decoration: none; }
+::selection { background: #cfe0ff; color: var(--text); }
 h1 { font-size: 24px; font-weight: 700; margin: 0 0 4px; letter-spacing: -0.01em; }
 h2 { font-size: 17px; font-weight: 600; margin: 0 0 12px; }
 p { margin: 0 0 8px; }

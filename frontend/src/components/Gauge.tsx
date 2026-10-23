@@ -21,9 +21,12 @@ export function SegmentedGauge({ segments, total, centreLabel }: { segments: Seg
           offset += share;
           return el;
         })}
-        <text x="120" y="104" textAnchor="middle" className="gauge-number">{total}</text>
-        <text x="120" y="124" textAnchor="middle" className="gauge-centre-label">{centreLabel}</text>
       </svg>
+      {/* Centre text is HTML (not SVG text) so it selects and highlights like normal text. */}
+      <figcaption className="gauge-centre">
+        <div className="gauge-number">{total}</div>
+        <div className="gauge-centre-label">{centreLabel}</div>
+      </figcaption>
     </figure>
   );
 }
