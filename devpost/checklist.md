@@ -103,7 +103,7 @@ Build mode: fast. The learner chose it: "just discuss and ask me for the importa
   Learner check: Exclude a label, rescan and see it skipped. Turn on scan on startup and restart.
   Commit: `Add settings, excluded labels and startup tasks`
 
-- [ ] **10. Proof package: benchmark, CI, README**
+- [x] **10. Proof package: benchmark, CI, README**
   Becomes usable: `scripts/benchmark.py` prints the recall and privacy numbers. GitHub Actions runs the tests, the frontend build and the audits. The README explains what JobTrail is, how to run it, its privacy claims with their evidence, the numbers, and its limits.
   Why now: This packages the evidence once the features are stable, ready for `6-ship`.
   PRD ref: `prd.md > What We're Building`
