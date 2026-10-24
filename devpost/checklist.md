@@ -12,7 +12,7 @@ Build mode: fast. The learner chose it: "just discuss and ask me for the importa
 - [x] **1. Scan the synthetic inbox and see what was opened vs skipped**
   Becomes usable: A running JobTrail at `127.0.0.1:8000`. Clicking Scan Now processes the synthetic inbox with the rules only. Hiring emails from known platforms appear in a basic Tracker list, and the Privacy page shows the access ledger. Personal emails are skipped unopened.
   Why now: This is the kernel (privacy you can verify), and it bootstraps the whole stack: backend, DB, fixtures, frontend build, single-origin serving. Everything later plugs into this path.
-  PRD ref: `prd.md > The Core Journey` (steps 1â€“4), `prd.md > Scanning`, `prd.md > Privacy`
+  PRD ref: `prd.md > The Core Journey` (steps 1–4), `prd.md > Scanning`, `prd.md > Privacy`
   Spec ref: `spec.md > Inbox Source`, `spec.md > Gate`, `spec.md > Rules`, `spec.md > Extractor (Rules fallback)`, `spec.md > Scan Orchestrator`, `spec.md > Security Headers and Static Serving`, `spec.md > Synthetic Inbox Fixtures`, `spec.md > Data Model`, `spec.md > File Structure`
   Build: Scaffold `backend/` (pyproject, FastAPI app, sqlite schema, repo, logging) and `frontend/` (Vite React TS, router, NavBar with Scan Now, tokens.css, self-hosted Inter). Write the full `fixtures/inbox.json`. Implement the source, gate, rules, html_text, rules extractor and scan orchestrator (rules-only mode). Add the `/api/scan`, `/api/applications` and `/api/ledger` routes, CSP middleware and static serving. Add basic Tracker and Privacy pages.
   Verify (mechanical): `pytest` passes `test_rules`, `test_gate`, `test_canaries` (stub mode) and `test_egress`. `npm run build` succeeds. The app starts and `POST /api/scan` returns a summary with personal emails skipped and 0 ledger rows for them. The response headers include the CSP.
@@ -24,7 +24,7 @@ Build mode: fast. The learner chose it: "just discuss and ask me for the importa
   Why now: This is the riskiest unknown, covering the Ollama API shape, model quality and whether the "defences off" attack will land. It's better to find out before the defence demo is built on top of it.
   PRD ref: `prd.md > Scanning`, `prd.md > States and Boundaries` (Local AI not running)
   Spec ref: `spec.md > Extractor (LLM)`, `spec.md > External Services and Dependencies`, `spec.md > Important Failure Modes`, `spec.md > Decisions and Open Issues`
-  Build: Add `extract_llm.py` (httpx â†’ `/api/chat`, `format` schema, temperature 0, 15s timeout, Pydantic validation), `/api/status`, the frontend banner, and `scripts/model_probe.py`. Pull two candidate models and run the probe. **Learner decides the model.**
+  Build: Add `extract_llm.py` (httpx → `/api/chat`, `format` schema, temperature 0, 15s timeout, Pydantic validation), `/api/status`, the frontend banner, and `scripts/model_probe.py`. Pull two candidate models and run the probe. **Learner decides the model.**
   Verify (mechanical): `test_extraction` passes (bad, extra and out-of-enum output rejected). The probe prints per-model extraction accuracy on the hiring fixtures and whether the attack fooled each one with defences off. A scan with Ollama stopped shows the rules-only banner via `/api/status`.
   Learner check: Look at the probe output and choose the model. Stop Ollama, reload, and see the banner.
   Commit: `Add strict local-LLM extraction with rules-only fallback`
@@ -35,7 +35,7 @@ Build mode: fast. The learner chose it: "just discuss and ask me for the importa
   PRD ref: `prd.md > Quarantine`, `prd.md > Defence Demo`, `prd.md > Settings` (defences toggle)
   Spec ref: `spec.md > Detector`, `spec.md > Cross-check`, `spec.md > Scan Orchestrator`, `spec.md > Extractor (Rules fallback)`, `spec.md > Frontend Pages`
   Build: Add the detector and cross-check, the defences setting and its naive-prompt path, quarantine storage and API, the Quarantine page, a minimal Settings page with the defences toggle, and the banner.
-  Verify (mechanical): `test_detector` and `test_defence_demo` pass (stub model scripted to obey the injection: off â†’ Offer, on â†’ quarantined, counts unchanged). A real-model run reproduces it locally.
+  Verify (mechanical): `test_detector` and `test_defence_demo` pass (stub model scripted to obey the injection: off → Offer, on → quarantined, counts unchanged). A real-model run reproduces it locally.
   Learner check: Toggle defences off, scan, and see the false Offer. Delete it, toggle defences on, scan again, and open Quarantine.
   Commit: `Detect and quarantine injected emails with demo defences toggle`
 
@@ -51,7 +51,7 @@ Build mode: fast. The learner chose it: "just discuss and ask me for the importa
 
 - [x] **5. Review queue for unknown senders**
   Becomes usable: Tier B emails (e.g. the recruiter on personal Gmail) appear in Review showing only the sender, subject and date. Approve reads the body, adds the application and trusts the sender. Reject leaves the email unopened forever. The nav shows a count badge.
-  Why now: This is the last privacy-critical behaviour, and it depends on the scan pipeline from slices 1â€“3.
+  Why now: This is the last privacy-critical behaviour, and it depends on the scan pipeline from slices 1–3.
   PRD ref: `prd.md > Review`
   Spec ref: `spec.md > Rules`, `spec.md > Gate`, `spec.md > Data Model`, `spec.md > API Layer`
   Build: Add review queue storage and routes, trusted/rejected senders, the Review page and the badges.
@@ -115,17 +115,24 @@ Build mode: fast. The learner chose it: "just discuss and ask me for the importa
 
 ## Hands-on Checkpoints
 
-- [x] Early usable behavior explored â€” after slice 4 (scan, ledger, attack demo, Overview look). Feedback: wanted one combined gauge, not three. Done: a segmented gauge with blue = awaiting reply, and a legend with counts.
+- [x] Early usable behavior explored — after slice 4 (scan, ledger, attack demo, Overview look). Feedback: wanted one combined gauge, not three. Done: a segmented gauge with blue = awaiting reply, and a legend with counts.
 - [ ] Final kick-the-tires exploration and feedback completed
 
 ## Final Review
 
-- [ ] Final review complete â€” feedback resolved and learner confirms ready to ship
+Learner feedback: "perfect". Asked for recommendations, then agreed to:
+- [x] Local API protection against CSRF and DNS rebinding: Host allowlist, a required `X-JobTrail` header on every change, and an Origin check. Tests added.
+- [x] "Reset scan data only" (keeps settings) for demo re-runs
+- [x] Clear error banner when the backend is unreachable or a request fails
+- [x] README: precise Gate wording, no hard-coded test count, local-API protections documented
+- [ ] Deferred to the recording day (learner choice): model warm-up at startup, `--data-dir` demo folder
+
+- [ ] Final review complete — feedback resolved and learner confirms ready to ship
 
 ## Code Tour and App Map
 
-- [ ] Learning activity complete â€” guided route, focused alternative, prior practice connected, or brief recap
-- [ ] Optional edit and transfer reflection addressed â€” offered/declined/already covered/not applicable as appropriate
+- [ ] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
+- [ ] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
 - [ ] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
 
 Activity and evidence:
@@ -136,10 +143,12 @@ Activity mode:
 
 ## Revisions
 
-- Fixture dates are stored as `days_ago` instead of absolute dates â€” absolute dates would go stale before judging, breaking the This week / This month views.
+- Fixture dates are stored as `days_ago` instead of absolute dates — absolute dates would go stale before judging, breaking the This week / This month views.
 - Scan summary gained an `already_seen` count, so rescans don't report previously opened emails as "skipped unopened".
 - Delete all (backend + Privacy button with confirm) was pulled forward from slice 7 into slice 3, because the defence demo needs a reset between the defences-off and defences-on runs. Slice 7 still adds the everything-we-hold view and the file-bytes test.
 - The model comparison showed the hardened prompt alone did not stop the hidden-text attack once hidden text reached the model. This confirms the detector-before-model order. The real-model demo test (`pytest -m ollama`) passes with qwen2.5:7b.
 - Overview changed from three gauges to one segmented gauge (learner feedback at the early checkpoint). Blue now means "awaiting reply" so the segments add up, and "new applications sent" is shown as a line below. PRD `Overview` and spec open issues updated.
 - "Restore to Tracker" removes the misfiled Rejected/Closed event(s) rather than just un-archiving, so the Overview counts and export stay truthful. Redacted ledger lines also blank the stored company/role summary, not just the sender and subject.
 - Settings gained a headers-only `/api/labels` list, so labels in the inbox can be excluded with one click. The auto-clean minimum is 7 days, matching the clear guard.
+- Final review found a real gap: without protection, any website could forge requests to the local API (CSRF) or read it via DNS rebinding. Fixed with a Host allowlist, a required `X-JobTrail` header and an Origin check (`tests/test_security.py`). Verified against the running server: forged requests return 403.
+- Added "Reset scan data" (keeps Settings), so demo re-runs don't reset the defences toggle.

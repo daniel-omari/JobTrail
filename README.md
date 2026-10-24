@@ -42,8 +42,9 @@ Browser (React) ──/api──▶ FastAPI on 127.0.0.1 ──▶ Scan
 ```
 
 - **The rules decide what is read.** The AI never makes that decision. It only fills three fields for one email at a time, its answer must match a fixed JSON schema, and it has no tools.
-- **The Gate** is the only code path to an email body, and it writes the ledger entry *before* returning the body. A test checks that bodies read = ledger rows.
+- **The Gate** writes the ledger entry *before* returning an email body, and it is the only code that asks the inbox source for a body. That's by design and checked by a test (bodies read = ledger rows), not enforced by the language: Python can't stop another module calling a "private" method, so the test is what holds it.
 - **Raw email text is never stored.** Skipped emails are only counted.
+- **Protected local API.** "Only on 127.0.0.1" isn't enough on its own: any website open in your browser can send requests to `127.0.0.1`. JobTrail answers only its own `Host` names, which blocks DNS rebinding. It also requires a custom `X-JobTrail` header on every request that changes data, which blocks cross-site request forgery, because other sites can't add custom headers without a CORS permission JobTrail never grants.
 - **One process, one origin.** FastAPI serves the built React app and binds to `127.0.0.1`. A `Content-Security-Policy` header (`connect-src 'self'`) makes the browser refuse to contact any other site. Fonts are bundled locally, there are no CDNs, and the API docs page is disabled because it loads from a CDN.
 
 ## Privacy claims and the evidence for each
@@ -57,6 +58,7 @@ JobTrail is **designed to minimise data, and that is verified by tests**. Every 
 | Planted secrets never reach storage, logs, the API or the AI | `tests/test_canaries.py`: 13 canary strings in personal emails are searched for in the database file, the log file, every API response and every request sent to the model |
 | Nothing connects anywhere except this machine | `tests/test_egress.py`: the whole test session blocks any non-localhost connection and fails if one is attempted. The browser enforces the CSP. In DevTools → Network, everything is `127.0.0.1`. |
 | Review items stay unopened until approved | `tests/test_review.py` |
+| Other websites can't use the local API | `tests/test_security.py`: requests with a foreign `Host` (DNS rebinding), without the `X-JobTrail` header (cross-site request forgery), or with a foreign `Origin` are refused with 403, and no CORS permission is ever granted |
 | Delete all really deletes | `tests/test_privacy.py`: after Delete all, the database file's bytes no longer contain the stored company names (`secure_delete` + `VACUUM`) |
 | Clearing old records keeps an audit trail without personal details | `tests/test_cleanup.py`: ledger lines are redacted (date and reason kept; sender, subject and details removed) |
 
@@ -121,7 +123,7 @@ python -m jobtrail
 
 Without Ollama, JobTrail runs in **rules-only mode** and shows a banner saying so.
 
-**Tests:** `pytest` (66 tests, using a deliberately gullible stub model, with no network or GPU needed). With Ollama running: `pytest -m ollama` runs the defence demo against the real model.
+**Tests:** `pytest` runs the whole suite with a deliberately gullible stub model, with no network or GPU needed. With Ollama running: `pytest -m ollama` runs the defence demo against the real model.
 
 ## Project layout
 
@@ -145,6 +147,6 @@ devpost/                      scope, PRD, spec and build checklist (the plan thi
 - **Synthetic inbox only.** There is no real email connection yet. The `InboxSource` interface is shaped like Gmail's (labels, message IDs) so a read-only Gmail adapter can plug in. Gmail's `gmail.readonly` scope is a Google *restricted* scope, so a public release would need Google's verification and a security assessment.
 - **Rules and fixtures are ours** (see the benchmark note). Unusual real-world formats will need more rules or will go to Review.
 - **The detector is pattern-based.** A novel phrasing can get past it. The cross-check is a second net, not a guarantee.
-- **No login.** Anything running on the same computer can reach `127.0.0.1:8000` while JobTrail is open. It is a single-user, local tool.
+- **No login.** Websites are blocked (see above), but another *program* running on the same computer could still call `127.0.0.1:8000` while JobTrail is open. It is a single-user, local tool.
 - **Delete all** overwrites deleted data inside the database file (`secure_delete` + `VACUUM`). It can't control copies your operating system, backups or SSD wear-levelling may keep.
 - The export is a helper for **your own** UC journal entries. It isn't connected to, or endorsed by, DWP, and you should check it before pasting.

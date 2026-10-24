@@ -66,9 +66,30 @@ export interface Fields { company: string; role: string; status: Status }
 
 export const STATUSES: Status[] = ["Applied", "Assessment", "Interview", "Offer", "Rejected", "Closed"];
 
+/** Fired when the backend can't be reached or a request fails, so the app can show a clear banner. */
+export const apiErrors = new EventTarget();
+export class ApiError extends Error {}
+
+function report(message: string): never {
+  apiErrors.dispatchEvent(new CustomEvent("error", { detail: message }));
+  throw new ApiError(message);
+}
+
+/** Every request carries X-JobTrail: 1. The backend refuses data-changing requests without it,
+ *  which blocks other websites from forging them (they can't add custom headers cross-site). */
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(path, { headers: { "Content-Type": "application/json" }, ...init });
-  if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+  let res: Response;
+  try {
+    res = await fetch(path, { ...init, headers: { "Content-Type": "application/json", "X-JobTrail": "1", ...init?.headers } });
+  } catch {
+    return report("Can't reach JobTrail. Is it still running? Start it again with: python -m jobtrail");
+  }
+  if (!res.ok) {
+    let detail = "";
+    try { detail = (await res.json()).detail ?? ""; } catch { /* not JSON */ }
+    if (res.status >= 500) return report("Something went wrong in JobTrail. Please try again.");
+    throw new ApiError(typeof detail === "string" ? detail : `Request failed (${res.status})`);
+  }
   return res.json() as Promise<T>;
 }
 
@@ -99,5 +120,6 @@ export const api = {
   exportSummary: (start: string, end: string) =>
     request<{ start: string; end: string; count: number; text: string }>(`/api/export?start=${start}&end=${end}`),
   everything: () => request<Everything>("/api/everything"),
+  resetScanData: () => request<{ ok: boolean }>("/api/reset-scan-data?confirm=true", { method: "POST" }),
   deleteAll: () => request<{ ok: boolean }>("/api/delete-all?confirm=true", { method: "POST" }),
 };

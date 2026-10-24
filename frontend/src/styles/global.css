@@ -42,6 +42,8 @@ table.data tr:last-child td { border-bottom: none; }
 .banner-warning { background: var(--warning-bg); border-color: var(--warning-border); color: var(--warning-text); }
 .banner-info { background: var(--info-bg); border-color: var(--info-border); color: #1e3a8a; }
 .banner-inner { max-width: 1080px; margin: 0 auto; }
+.banner-error { background: #fdf0f2; border-color: #f1c3cc; color: #8a1730; }
+.banner-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
 
 .held { border-top: 1px solid var(--border); }
 .held summary { display: flex; justify-content: space-between; padding: 12px 4px; cursor: pointer; font-weight: 600; list-style: none; }

@@ -20,6 +20,18 @@ class Config:
     fixture_path: Path = BACKEND_DIR / "fixtures" / "inbox.json"
     frontend_dist: Path = REPO_DIR / "frontend" / "dist"
     ollama_url: str = OLLAMA_URL
+    port: int = field(default_factory=lambda: int(os.environ.get("JOBTRAIL_PORT", PORT)))
+    extra_hosts: tuple[str, ...] = ()  # e.g. the test client's host
+
+    @property
+    def allowed_hosts(self) -> set[str]:
+        """Host headers we answer. Anything else (e.g. a DNS-rebinding attacker's domain) is refused."""
+        ports = {self.port, 5173}  # 5173 = Vite dev server proxy (development only)
+        return {f"{h}:{p}" for h in ("127.0.0.1", "localhost") for p in ports} | set(self.extra_hosts)
+
+    @property
+    def allowed_origins(self) -> set[str]:
+        return {f"http://{h}" for h in self.allowed_hosts}
 
     @property
     def db_path(self) -> Path:

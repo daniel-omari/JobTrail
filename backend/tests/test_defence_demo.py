@@ -97,7 +97,7 @@ def test_real_model_demo(make_client, config):
     from fastapi.testclient import TestClient
 
     app = create_app(config, llm_factory=lambda m: OllamaExtractor(OLLAMA_URL, DEFAULT_MODEL, timeout=120))
-    with TestClient(app) as c:
+    with TestClient(app, headers={"X-JobTrail": "1"}) as c:
         _set_defences(c, False)
         c.post("/api/scan")
         assert _all_apps(c)[("Wexford Media", "Junior Software Engineer")] == "Offer"

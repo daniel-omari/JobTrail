@@ -69,7 +69,7 @@ def inbox() -> SyntheticInbox:
 
 @pytest.fixture
 def config(tmp_path) -> Config:
-    return Config(data_dir=tmp_path / "data")
+    return Config(data_dir=tmp_path / "data", extra_hosts=("testserver",))
 
 
 class StubOllama:
@@ -123,7 +123,7 @@ def make_client(config, inbox):
             source_factory=lambda: source or inbox,
             llm_factory=(llm.factory if llm else (lambda model: None)),  # default: rules-only, never a real model
         )
-        return TestClient(app)
+        return TestClient(app, headers={"X-JobTrail": "1"})  # what the real frontend sends
     return _make
 
 

@@ -60,7 +60,7 @@ Browser (React) ──/api──▶ FastAPI ──▶ Scan orchestrator
 | Part | Choice | Why |
 |---|---|---|
 | Language (backend) | **Python 3.14** (fallback to 3.13 via `py -3.13` if a library misbehaves) | Daniel's strongest language; already installed. **Verify early** that FastAPI/Pydantic install cleanly on 3.14. |
-| Web framework | **FastAPI** + **Uvicorn** | Daniel's brief choice. Typed request/response models, automatic API docs. [docs](https://fastapi.tiangolo.com/) |
+| Web framework | **FastAPI** + **Uvicorn** | Daniel's brief choice. Typed request/response models (the interactive docs page is disabled because it loads from a CDN). [docs](https://fastapi.tiangolo.com/) |
 | Validation | **Pydantic v2** (comes with FastAPI) | Strict model-output validation (fixed fields, status enum, length caps, no extra keys). [docs](https://docs.pydantic.dev/) |
 | Database | **SQLite via the stdlib `sqlite3` module** | A single local file with no server. Plain SQL in one module is easy to read and explain in interviews, and needs no ORM. [docs](https://docs.python.org/3/library/sqlite3.html) |
 | HTTP to Ollama | **httpx** | Simple, well-tested; easy to stub in tests. [docs](https://www.python-httpx.org/) |
@@ -226,6 +226,11 @@ PRD ref: all `prd.md > Features and Behavior` headings.
   - `X-Content-Type-Options: nosniff`
 - FastAPI serves `frontend/dist` at `/` with an SPA fallback to `index.html`.
 - Uvicorn binds `127.0.0.1`.
+- **Local-API protection (added at final review):**
+  - only answer `Host` values of 127.0.0.1/localhost on JobTrail's port (blocks DNS rebinding)
+  - require `X-JobTrail: 1` on every POST/PUT/PATCH/DELETE (blocks CSRF; cross-site pages can't add custom headers without a CORS preflight, which is never approved)
+  - refuse a foreign `Origin`.
+  - The port comes from `JOBTRAIL_PORT` (default 8000).
 - PRD ref: `prd.md > States and Boundaries` (nothing leaves the machine).
 
 ### Frontend Pages

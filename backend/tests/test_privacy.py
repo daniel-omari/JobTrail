@@ -29,3 +29,13 @@ def test_delete_all_empties_the_view_and_the_file(client, config):
     stored = _file_bytes(config)
     for name in (b"Northwind Analytics", b"Halden Robotics", b"greenhouse-mail.io", b"offered the role"):
         assert name not in stored, name
+
+
+def test_reset_scan_data_keeps_settings(client):
+    client.put("/api/settings", json={"defences": False, "excluded_labels": ["Banking"]})
+    client.post("/api/scan")
+    assert client.post("/api/reset-scan-data").status_code == 400
+    assert client.post("/api/reset-scan-data?confirm=true").json() == {"ok": True}
+    data = client.get("/api/everything").json()
+    assert data["applications"] == [] and data["ledger"] == [] and data["processed_email_fingerprints"] == 0
+    assert data["settings"]["defences"] is False and data["settings"]["excluded_labels"] == ["Banking"]

@@ -50,9 +50,19 @@ def force_clean(conn: sqlite3.Connection) -> int:
     return _redact_and_delete(conn, ids)
 
 
+def reset_scan_data(conn: sqlite3.Connection) -> None:
+    """Everything except your Settings (defences toggle, excluded labels, startup and auto-clean choices).
+    Handy for re-running the demo; Delete all is the full wipe."""
+    _wipe(conn, [t for t in ALL_TABLES if t != "settings"])
+
+
 def delete_all(conn: sqlite3.Connection) -> None:
+    _wipe(conn, ALL_TABLES)
+
+
+def _wipe(conn: sqlite3.Connection, tables: list[str]) -> None:
     conn.execute("PRAGMA secure_delete = ON")
-    for table in ALL_TABLES:
+    for table in tables:
         conn.execute(f"DELETE FROM {table}")  # noqa: S608 - fixed table names, not user input
     conn.commit()
     conn.execute("VACUUM")

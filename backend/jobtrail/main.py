@@ -4,7 +4,7 @@ from __future__ import annotations
 from collections.abc import Callable
 
 from fastapi import FastAPI, Request
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from .api import applications, export, overview, privacy, quarantine, review, scan, settings, status
@@ -21,6 +21,31 @@ CSP = (
     "style-src 'self'; script-src 'self'; object-src 'none'; frame-ancestors 'none'; "
     "base-uri 'none'; form-action 'self'"
 )
+UNSAFE_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
+CSRF_HEADER = "x-jobtrail"
+
+
+def check_local_request(request: Request, config: Config) -> str | None:
+    """Defend the local API against other websites open in the same browser.
+
+    1. DNS rebinding: an attacker's domain can be made to resolve to 127.0.0.1, but the browser still sends
+       the attacker's name in the Host header. Only our own host names are answered.
+    2. CSRF: a malicious page can make the browser send a POST to 127.0.0.1. Every request that changes data
+       must carry a custom X-JobTrail header. Browsers only let other sites add custom headers after a CORS
+       preflight, which this app never approves. If an Origin header is present it must be ours as well.
+    Returns a reason string when the request must be refused."""
+    host = request.headers.get("host", "")
+    if host not in config.allowed_hosts:
+        return "Unexpected Host header"
+    if request.method in UNSAFE_METHODS and request.url.path.startswith("/api"):
+        if request.headers.get(CSRF_HEADER) != "1":
+            return "Missing X-JobTrail header"
+        origin = request.headers.get("origin")
+        if origin is not None and origin not in config.allowed_origins:
+            return "Cross-site request refused"
+    return None
+
+
 SECURITY_HEADERS = {
     "Content-Security-Policy": CSP,
     "Referrer-Policy": "no-referrer",
@@ -48,7 +73,11 @@ def create_app(
 
     @app.middleware("http")
     async def security_headers(request: Request, call_next):
-        response = await call_next(request)
+        reason = check_local_request(request, config)
+        if reason:
+            response: Response = JSONResponse({"detail": reason}, status_code=403)
+        else:
+            response = await call_next(request)
         for k, v in SECURITY_HEADERS.items():
             response.headers.setdefault(k, v)
         if request.url.path.startswith("/api"):
