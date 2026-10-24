@@ -22,3 +22,8 @@ backend/data/
 # Frontend
 node_modules/
 frontend/dist/
+
+# Devpost Learn skill pack (installed copies; skills-lock.json records exactly which skills were used)
+/.agents/
+/.claude/
+/agent/
