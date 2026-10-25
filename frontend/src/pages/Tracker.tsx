@@ -9,7 +9,7 @@ import "./Tracker.css";
 const fmt = (d: string | null) => (d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—");
 const today = () => new Date().toISOString().slice(0, 10);
 
-interface FormValues { company: string; role: string; status: Status; date: string; how_applied: string }
+interface FormValues { company: string; role: string; status: Status; date: string; how_applied: string; notes: string }
 
 function AppForm({ initial, submitLabel, showDate, onSubmit, onCancel }: {
   initial: FormValues; submitLabel: string; showDate: boolean;
@@ -30,6 +30,10 @@ function AppForm({ initial, submitLabel, showDate, onSubmit, onCancel }: {
       </select></label>
       {showDate && <label>Date<input type="date" value={v.date} max={today()} onChange={(e) => setV({ ...v, date: e.target.value })} /></label>}
       <label>How applied<input value={v.how_applied} onChange={(e) => setV({ ...v, how_applied: e.target.value })} /></label>
+      <label className="notes-field">Notes <span className="hint">only for you, never included in the export</span>
+        <textarea rows={3} maxLength={1000} value={v.notes} placeholder="e.g. Interview Thu 2pm, ask about hybrid working"
+          onChange={(e) => setV({ ...v, notes: e.target.value })} />
+      </label>
       {error && <p className="form-error">{error}</p>}
       <div className="row-actions">
         <button className="btn btn-primary" onClick={submit}>{submitLabel}</button>
@@ -56,6 +60,7 @@ function Drawer({ app, onClose, onChanged }: { app: Application; onClose: () => 
         <dt>How applied</dt><dd>{app.how_applied}</dd>
         <dt>Source</dt><dd>{app.manual ? "Added manually" : app.source}</dd>
       </dl>
+      {app.notes && !editing && <div className="notes"><div className="notes-label">Notes</div>{app.notes}</div>}
       <h2>History</h2>
       <ol className="timeline">
         {app.history.map((h, i) => (
@@ -65,9 +70,9 @@ function Drawer({ app, onClose, onChanged }: { app: Application; onClose: () => 
       {editing ? (
         <AppForm
           showDate={false} submitLabel="Save changes"
-          initial={{ company: app.company, role: app.role, status: app.current_status, date: today(), how_applied: app.how_applied }}
+          initial={{ company: app.company, role: app.role, status: app.current_status, date: today(), how_applied: app.how_applied, notes: app.notes }}
           onCancel={() => setEditing(false)}
-          onSubmit={async (v) => { await api.editApplication(app.id, { company: v.company, role: v.role, status: v.status, how_applied: v.how_applied }); setEditing(false); onChanged(); }}
+          onSubmit={async (v) => { await api.editApplication(app.id, { company: v.company, role: v.role, status: v.status, how_applied: v.how_applied, notes: v.notes }); setEditing(false); onChanged(); }}
         />
       ) : (
         <div className="row-actions wrap">
@@ -102,7 +107,7 @@ function AppTable({ apps, onOpen }: { apps: Application[]; onOpen: (a: Applicati
       <tbody>
         {apps.map((a) => (
           <tr key={a.id} onClick={() => onOpen(a)} tabIndex={0} onKeyDown={(e) => e.key === "Enter" && onOpen(a)}>
-            <td><strong>{a.company}</strong>{a.manual && <span className="badge badge-neutral manual">manual</span>}</td>
+            <td><strong>{a.company}</strong>{a.manual && <span className="badge badge-neutral manual">manual</span>}{a.notes && <span className="has-notes" title={a.notes} aria-label="Has notes">✎</span>}</td>
             <td>{a.role}</td>
             <td><StageBadge status={a.current_status} /></td>
             <td className="muted small">{fmt(a.applied_date)}</td>
@@ -124,6 +129,7 @@ export function Tracker() {
   const [olderThan, setOlderThan] = useState(7);
   const [forceConfirm, setForceConfirm] = useState(false);
   const [note, setNote] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     api.applications(false).then(setActive);
@@ -132,15 +138,20 @@ export function Tracker() {
 
   const open = [...(active ?? []), ...archived].find((a) => a.id === openId) ?? null;
 
+  const q = query.trim().toLowerCase();
+  const matches = (a: Application) => !q || `${a.company} ${a.role} ${a.notes}`.toLowerCase().includes(q);
+  const shownActive = (active ?? []).filter(matches);
+  const shownArchived = archived.filter(matches);
+
   // Archive: newest first, grouped by month of last update.
   const months = useMemo(() => {
     const groups = new Map<string, Application[]>();
-    for (const a of [...archived].sort((x, y) => (y.last_update ?? "").localeCompare(x.last_update ?? ""))) {
+    for (const a of [...shownArchived].sort((x, y) => (y.last_update ?? "").localeCompare(x.last_update ?? ""))) {
       const key = a.last_update ? new Date(a.last_update).toLocaleDateString("en-GB", { month: "long", year: "numeric" }) : "Undated";
       groups.set(key, [...(groups.get(key) ?? []), a]);
     }
     return [...groups.entries()];
-  }, [archived]);
+  }, [shownArchived]);
 
   const clear = async () => {
     const { removed } = await api.clearArchive(olderThan);
@@ -152,7 +163,11 @@ export function Tracker() {
     <div className="page tracker">
       <div className="page-head">
         <div><h1>Tracker</h1><p className="muted">Every application JobTrail found, and where it stands. Click a row for details.</p></div>
-        <button className="btn btn-primary" onClick={() => setAdding(true)}>Add entry</button>
+        <div className="row-actions">
+          <input className="search" type="search" placeholder="Search company, role or notes" value={query}
+            onChange={(e) => setQuery(e.target.value)} aria-label="Search applications" />
+          <button className="btn btn-primary" onClick={() => setAdding(true)}>Add entry</button>
+        </div>
       </div>
 
       {adding && (
@@ -161,7 +176,7 @@ export function Tracker() {
           <p className="small muted">For anything JobTrail missed, like an application made by phone or in person.</p>
           <AppForm
             showDate submitLabel="Add to Tracker"
-            initial={{ company: "", role: "", status: "Applied", date: today(), how_applied: "Added manually" }}
+            initial={{ company: "", role: "", status: "Applied", date: today(), how_applied: "Added manually", notes: "" }}
             onCancel={() => setAdding(false)}
             onSubmit={async (v) => { await api.addApplication(v); setAdding(false); refresh(); }}
           />
@@ -172,7 +187,9 @@ export function Tracker() {
         <h2>Active applications</h2>
         {active && active.length === 0
           ? <EmptyState title="No active applications yet"><p>Run a scan, or add one manually.</p></EmptyState>
-          : active && <AppTable apps={active} onOpen={(a) => setOpenId(a.id)} />}
+          : active && (shownActive.length === 0
+            ? <p className="muted">No active applications match “{query}”.</p>
+            : <AppTable apps={shownActive} onOpen={(a) => setOpenId(a.id)} />)}
       </div>
 
       <div className="card">
@@ -192,7 +209,8 @@ export function Tracker() {
           </div>
         </div>
         {note && <p className="small" role="status">{note}</p>}
-        {archived.length === 0 ? <p className="muted">Nothing here.</p> : months.map(([month, apps]) => (
+        {archived.length === 0 ? <p className="muted">Nothing here.</p>
+          : shownArchived.length === 0 ? <p className="muted">Nothing here matches “{query}”.</p> : months.map(([month, apps]) => (
           <div key={month} className="month">
             <div className="month-label">{month}</div>
             <AppTable apps={apps} onOpen={(a) => setOpenId(a.id)} />

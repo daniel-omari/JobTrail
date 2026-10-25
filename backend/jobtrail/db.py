@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS applications (
     current_status TEXT NOT NULL,
     archived INTEGER NOT NULL DEFAULT 0,
     manual INTEGER NOT NULL DEFAULT 0,
+    notes TEXT NOT NULL DEFAULT '',     -- the user's own notes, never from emails
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
 );
@@ -95,6 +96,9 @@ def init_db(db_path: Path) -> None:
     conn = connect(db_path)
     try:
         conn.executescript(SCHEMA)
+        cols = {r[1] for r in conn.execute("PRAGMA table_info(applications)")}
+        if "notes" not in cols:  # databases created before notes existed
+            conn.execute("ALTER TABLE applications ADD COLUMN notes TEXT NOT NULL DEFAULT ''")
         conn.commit()
     finally:
         conn.close()

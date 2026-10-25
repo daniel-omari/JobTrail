@@ -90,13 +90,13 @@ export function Settings() {
         </p>
       </div>
 
-      <div className="card setting demo-setting">
+      {status?.demo && <div className="card setting demo-setting">
         <div>
           <h2>Demo: defences</h2>
           <p className="muted">For demonstrations only. When off, emails go straight to the AI without the injection detector or cross-check, showing what an undefended app would do. Keep this on.</p>
         </div>
         <Switch checked={s.defences} onChange={(v) => save({ defences: v })} label="Defences" />
-      </div>
+      </div>}
     </div>
   );
 }

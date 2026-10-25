@@ -17,7 +17,7 @@ JobTrail's answer: **don't take our word for it. Check.**
 ## What it does
 
 - **Scan Now** checks email headers (sender, subject, date, labels) and opens **only** emails from recruiting platforms, or from senders you approve.
-- **Tracker:** each application with its stage (*Still pending reply…*, *Stage: Interview!*, *Stage: Offer!*). There's a status history, manual add/edit/delete and "don't track this", plus a Rejected / No Response archive grouped by month.
+- **Tracker:** each application with its stage (*Still pending reply…*, *Stage: Interview!*, *Stage: Offer!*). There's search, a status history, your own private notes, manual add/edit/delete and "don't track this", plus a Rejected / No Response archive grouped by month.
 - **Overview:** one half-circle gauge showing proceeding, awaiting reply and rejected, with This week / This month / All time.
 - **Review:** emails from unknown senders that *look* job-related wait here, showing **sender, subject and date only**. They're opened only if you approve.
 - **Quarantine:** emails that try to manipulate the app or its AI, with the reason, a short excerpt and a plain-English explanation.
@@ -66,7 +66,7 @@ JobTrail is **designed to minimise data, and that is verified by tests**. Every 
 
 Emails are untrusted input to an AI. The demo attack is a genuine-looking **rejection** with hidden text (`display:none`) telling "the AI assistant processing this email" that the candidate was offered the role.
 
-- **Defences off** (a demo toggle in Settings, with an amber banner): the raw email goes straight into a simple prompt. The real local model (qwen2.5:7b) logs the rejection as an **Offer**, and the Overview's green segment grows.
+- **Defences off** (a toggle that exists **only in demo mode**, `python -m jobtrail --demo`, with an amber banner): the raw email goes straight into a simple prompt. The real local model (qwen2.5:7b) logs the rejection as an **Offer**, and the Overview's green segment grows.
 - **Defences on:** the detector catches the hidden instruction **before the AI sees it**. The email goes to Quarantine with its reason and excerpt, and no records change. "Release" pre-fills the entry from the rules (*Rejected*), never from the AI.
 
 Three layers, because one wasn't enough:
@@ -121,7 +121,9 @@ ollama pull qwen2.5:7b
 python -m jobtrail
 ```
 
-Without Ollama, JobTrail runs in **rules-only mode** and shows a banner saying so.
+Without Ollama, JobTrail runs in **rules-only mode** and shows a banner saying so. At startup it warms the model up in the background, so the first scan doesn't wait for the model to load.
+
+**Demo mode:** `python -m jobtrail --demo` uses a separate data folder (`backend/data-demo`, wiped on each start), so your normal data is untouched. It also shows the demo-only controls: the defences on/off toggle and "Reset scan data". In normal mode those controls don't exist, and the API refuses to turn defences off.
 
 **Tests:** `pytest` runs the whole suite with a deliberately gullible stub model, with no network or GPU needed. With Ollama running: `pytest -m ollama` runs the defence demo against the real model.
 

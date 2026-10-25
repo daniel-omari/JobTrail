@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sqlite3
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from .. import repo
 from ..cleanup import delete_all as _delete_all
@@ -32,7 +32,9 @@ def delete_all(confirm: bool = False, conn: sqlite3.Connection = Depends(get_con
 
 
 @router.post("/reset-scan-data")
-def reset_scan_data(confirm: bool = False, conn: sqlite3.Connection = Depends(get_conn)) -> dict:
+def reset_scan_data(request: Request, confirm: bool = False, conn: sqlite3.Connection = Depends(get_conn)) -> dict:
+    if not request.app.state.config.demo:
+        raise HTTPException(404, "Reset scan data is only available in demo mode")
     if not confirm:
         raise HTTPException(400, "Pass confirm=true to reset scan data")
     _reset_scan_data(conn)

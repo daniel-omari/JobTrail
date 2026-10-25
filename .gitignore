@@ -27,3 +27,6 @@ frontend/dist/
 /.agents/
 /.claude/
 /agent/
+
+# Demo-mode data (python -m jobtrail --demo)
+backend/data-demo/

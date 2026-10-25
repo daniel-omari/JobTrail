@@ -10,7 +10,7 @@ export interface ScanSummary {
 
 export interface Application {
   id: number; company: string; role: string; source: string; how_applied: string;
-  current_status: Status; archived: boolean; manual: boolean;
+  current_status: Status; archived: boolean; manual: boolean; notes: string;
   applied_date: string | null; last_update: string | null;
   history: { status: Status; event_date: string }[];
 }
@@ -27,7 +27,7 @@ export interface LedgerResponse {
 }
 
 export interface AppStatus {
-  ai_available: boolean; mode: string; model: string | null; defences: boolean;
+  ai_available: boolean; mode: string; model: string | null; defences: boolean; demo: boolean;
   review_count: number; quarantine_count: number;
 }
 
@@ -99,9 +99,9 @@ export const api = {
   applications: (archived = false) => request<Application[]>(`/api/applications?archived=${archived}`),
   ledger: () => request<LedgerResponse>("/api/ledger"),
   overview: (range: Range) => request<OverviewData>(`/api/overview?range=${range}`),
-  addApplication: (a: Fields & { date?: string; how_applied?: string }) =>
+  addApplication: (a: Fields & { date?: string; how_applied?: string; notes?: string }) =>
     request<Application>("/api/applications", { method: "POST", body: JSON.stringify(a) }),
-  editApplication: (id: number, a: Partial<Fields> & { how_applied?: string }) =>
+  editApplication: (id: number, a: Partial<Fields> & { how_applied?: string; notes?: string }) =>
     request<Application>(`/api/applications/${id}`, { method: "PATCH", body: JSON.stringify(a) }),
   deleteApplication: (id: number) => request<{ ok: boolean }>(`/api/applications/${id}`, { method: "DELETE" }),
   doNotTrack: (id: number) => request<{ ok: boolean }>(`/api/applications/${id}/do-not-track`, { method: "POST" }),

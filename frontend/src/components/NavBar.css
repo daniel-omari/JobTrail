@@ -9,3 +9,4 @@
 .nav-links a.active { color: var(--text); background: #eef2fb; }
 .count { background: var(--rejected); color: #fff; border-radius: 999px; font-size: 11px; font-weight: 700; padding: 0 6px; line-height: 17px; }
 .count-review { background: var(--sent); }
+.demo-pill { font-size: 10.5px; font-weight: 800; letter-spacing: 0.08em; color: var(--warning-text); background: var(--warning-bg); border: 1px solid var(--warning-border); border-radius: 999px; padding: 1px 7px; }

@@ -18,7 +18,7 @@ def _set_defences(c, on: bool):
 
 def test_defences_off_lets_the_attack_through(make_client):
     stub = StubOllama()
-    with make_client(llm=stub) as c:
+    with make_client(llm=stub, demo=True) as c:
         _set_defences(c, False)
         summary = c.post("/api/scan").json()
         apps = _all_apps(c)
@@ -96,7 +96,9 @@ def test_real_model_demo(make_client, config):
     from jobtrail.pipeline.extract_llm import OllamaExtractor
     from fastapi.testclient import TestClient
 
-    app = create_app(config, llm_factory=lambda m: OllamaExtractor(OLLAMA_URL, DEFAULT_MODEL, timeout=120))
+    import dataclasses
+    app = create_app(dataclasses.replace(config, demo=True),
+                     llm_factory=lambda m: OllamaExtractor(OLLAMA_URL, DEFAULT_MODEL, timeout=120))
     with TestClient(app, headers={"X-JobTrail": "1"}) as c:
         _set_defences(c, False)
         c.post("/api/scan")

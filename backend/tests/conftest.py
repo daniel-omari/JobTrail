@@ -2,6 +2,7 @@
 network connection to anything other than this machine fails the test run."""
 from __future__ import annotations
 
+import dataclasses
 import json
 import re
 import socket
@@ -117,9 +118,9 @@ def stub_llm() -> StubOllama:
 
 @pytest.fixture
 def make_client(config, inbox):
-    def _make(source=None, llm: StubOllama | None = None):
+    def _make(source=None, llm: StubOllama | None = None, demo: bool = False):
         app = create_app(
-            config,
+            dataclasses.replace(config, demo=demo),
             source_factory=lambda: source or inbox,
             llm_factory=(llm.factory if llm else (lambda model: None)),  # default: rules-only, never a real model
         )

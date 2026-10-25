@@ -9,7 +9,8 @@ from fastapi.staticfiles import StaticFiles
 
 from .api import applications, export, overview, privacy, quarantine, review, scan, settings, status
 from .config import Config
-from .db import init_db
+from . import repo
+from .db import connect, init_db
 from .logging_setup import setup_logging
 from .sources.base import InboxSource
 from .pipeline.extract_llm import OllamaExtractor
@@ -64,6 +65,11 @@ def create_app(
     config = config or Config()
     init_db(config.db_path)
     setup_logging(config.log_path)
+    if not config.demo:  # the defences toggle is a demo tool; a normal run always has defences on
+        conn = connect(config.db_path)
+        if repo.get_settings(conn)["defences"] is not True:
+            repo.put_settings(conn, {"defences": True})
+        conn.close()
 
     # Interactive API docs are disabled: they load scripts from a CDN, which would break "nothing leaves the machine".
     app = FastAPI(title="JobTrail", docs_url=None, redoc_url=None, openapi_url=None)

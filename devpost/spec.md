@@ -83,7 +83,8 @@ Unverified, to check in the first build step: Python 3.14 wheel support for the 
   cd ../backend && py -m venv .venv && .venv\Scripts\activate && pip install -e .[dev]
   ollama pull <chosen-model>
   ```
-- **Run:** `python -m jobtrail` → opens `http://127.0.0.1:8000`. Without Ollama running, it starts in rules-only mode.
+- **Run:** `python -m jobtrail` → opens `http://127.0.0.1:8000`. Without Ollama running, it starts in rules-only mode. At startup the model is warmed up in a background thread (`warmup.py`).
+- **Demo:** `python -m jobtrail --demo` uses `backend/data-demo` (wiped on each start) and enables the demo-only controls (defences toggle, Reset scan data). Outside demo mode, the API refuses `defences=false`, and startup forces it back on.
 - **Dev mode (building only):** `npm run dev` (Vite on :5173, proxying `/api` to :8000) plus `uvicorn jobtrail.main:app --reload`. Not used for the demo.
 - **Tests:** `pytest` in `backend/`. These run without Ollama, using a stub model. Real-model tests are marked `@pytest.mark.ollama` and only run locally.
 - **Demo recording** (for `6-ship`): fresh DB → Overview (empty) → Scan Now (defences off) → show the false Offer → Delete all → Settings: defences on → Scan Now → Quarantine → Privacy ledger → `pytest` canary run in a terminal → DevTools Network tab showing only `127.0.0.1` → Export.
@@ -253,7 +254,7 @@ SQLite file `backend/data/jobtrail.db` (gitignored). All tables are cleared by D
 
 | Table | Columns | Updated by | Persists? |
 |---|---|---|---|
-| `applications` | id, company, role, source (platform/manual), how_applied, current_status, archived (0/1), manual (0/1), created_at, updated_at | scan, manual edits, archive moves | yes |
+| `applications` | id, company, role, source (platform/manual), how_applied, current_status, archived (0/1), manual (0/1), notes (user-written, ≤1000 chars, never exported), created_at, updated_at | scan, manual edits, archive moves | yes |
 | `events` | id, application_id, status, event_date, message_hash (nullable) | each extracted email or manual stage change | yes, and drives Overview ranges and Export |
 | `ledger` | id, opened_at, message_hash, sender, subject, rule, stored_summary, redacted | Gate (insert), orchestrator (stored_summary), cleanup (redact) | yes |
 | `seen_messages` | message_hash, outcome (opened/rejected_review/quarantined) | orchestrator, review | yes (hash only) |

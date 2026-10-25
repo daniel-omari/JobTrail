@@ -14,6 +14,9 @@ OLLAMA_URL = "http://127.0.0.1:11434"
 DEFAULT_MODEL = "qwen2.5:7b"  # chosen by the learner after scripts/model_probe.py (17/17 extraction, 0.24s/email)
 
 
+DEMO_DATA_DIR = BACKEND_DIR / "data-demo"
+
+
 @dataclass
 class Config:
     data_dir: Path = field(default_factory=lambda: Path(os.environ.get("JOBTRAIL_DATA_DIR", BACKEND_DIR / "data")))
@@ -22,6 +25,7 @@ class Config:
     ollama_url: str = OLLAMA_URL
     port: int = field(default_factory=lambda: int(os.environ.get("JOBTRAIL_PORT", PORT)))
     extra_hosts: tuple[str, ...] = ()  # e.g. the test client's host
+    demo: bool = False  # `python -m jobtrail --demo`: shows demo-only controls (defences toggle, reset)
 
     @property
     def allowed_hosts(self) -> set[str]:

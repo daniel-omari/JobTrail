@@ -25,6 +25,7 @@ export function NavBar() {
             <svg width="14" height="14" viewBox="0 0 14 14"><path d="M2 10 L6 6 L8 8 L12 3" stroke="#fff" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </span>
           JobTrail
+          {status?.demo && <span className="demo-pill" title="Started with --demo: separate demo data and demo-only controls">DEMO</span>}
         </NavLink>
         <nav className="nav-links">
           {LINKS.map((l) => (

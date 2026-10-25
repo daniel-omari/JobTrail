@@ -71,6 +71,8 @@ Source: `scope.md > The POC Boundary`.
 - Click a row for details: its status history (e.g. Applied 3 Oct → Assessment 8 Oct) and which email(s) it came from.
 - **Add entry** manually: company, role, stage and date. Manual entries are marked as manual.
 - **Edit** or **delete** any entry.
+- **Search** by company, role or notes, filtering both the active list and the archive (added at final review).
+- **Notes:** the user's own private notes per application (e.g. "Interview Thu 2pm"). Shown in the drawer and in "everything we hold", never in the export (added at final review).
 - **Don't track this:** removes the entry, and future emails about that same application (same company + role) are skipped unopened.
 - **Rejected / No Response** archive, a separate section of the Tracker:
   - Rejected and Closed applications move here automatically.
@@ -106,6 +108,7 @@ Source: `scope.md > The Unique Kernel`.
 - **Access ledger:** one line per email opened, showing the date, sender, subject, **why** it was opened (the rule that matched), and **exactly what was stored**. Skipped emails are shown as counts, not listed with details.
 - **Everything we hold about you:** a complete view of every stored item (applications, ledger entries, quarantine excerpts, settings).
 - **Delete all** wipes everything, after a confirmation pop-up.
+- **Reset scan data** (demo mode only) clears scanned data but keeps Settings, for re-running the demo.
 - When an archived record is cleared, its ledger line is **redacted**: it keeps the date and the rule (e.g. "Opened 1 email · 12 Oct · rule: known ATS") but drops the sender and subject.
 - [ ] After Delete all, "Everything we hold" is empty.
 
@@ -120,7 +123,7 @@ Source: `scope.md > The Core Loop`.
 - **Excluded labels:** the user lists labels/categories (e.g. "Personal", "Banking") that are never checked.
 - **Scan on startup:** on or off.
 - **Auto-clean:** archive entries older than N days are removed automatically. Default 90, user-adjustable, or Never. It never touches the last 7 days.
-- **Demo: defences on/off**, clearly labelled as a demonstration control.
+- **Demo: defences on/off**, clearly labelled as a demonstration control. It appears **only in demo mode** (`--demo`); a normal run always has defences on (revised at final review).
 - **Local AI status:** shows whether the local model is available.
 
 ### Defence Demo

@@ -264,9 +264,9 @@ def get_application(conn: sqlite3.Connection, app_id: int) -> dict | None:
 
 
 def update_application(conn: sqlite3.Connection, app_id: int, company: str | None, role: str | None,
-                       how_applied: str | None) -> None:
+                       how_applied: str | None, notes: str | None = None) -> None:
     sets, params = [], []
-    for col, val in (("company", company), ("role", role), ("how_applied", how_applied)):
+    for col, val in (("company", company), ("role", role), ("how_applied", how_applied), ("notes", notes)):
         if val is not None:
             sets.append(f"{col}=?")
             params.append(val)

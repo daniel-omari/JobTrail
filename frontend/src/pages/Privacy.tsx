@@ -12,7 +12,7 @@ const RULES: Record<string, string> = {
 };
 
 export function Privacy() {
-  const { version, refresh } = useScan();
+  const { version, refresh, status } = useScan();
   const [data, setData] = useState<LedgerResponse | null>(null);
   const [confirming, setConfirming] = useState(false);
   const [resetting, setResetting] = useState(false);
@@ -26,17 +26,19 @@ export function Privacy() {
           <p className="muted">Every email JobTrail opened, why it opened it, and exactly what it kept. Everything else is skipped without being read.</p>
         </div>
         <div className="row-actions">
-          <button className="btn" onClick={() => setResetting(true)} title="Clear scanned data but keep your Settings, e.g. to re-run a demo">Reset scan data</button>
+          {status?.demo && <button className="btn" onClick={() => setResetting(true)} title="Demo mode: clear scanned data but keep your Settings">Reset scan data</button>}
           <button className="btn btn-danger" onClick={() => setConfirming(true)}>Delete all</button>
         </div>
       </div>
+      {status?.demo && (
       <ConfirmDialog
-        open={resetting} title="Reset scan data?" confirmLabel="Reset scan data" danger
-        onCancel={() => setResetting(false)}
-        onConfirm={async () => { await api.resetScanData(); setResetting(false); refresh(); }}
-      >
-        Removes applications, the ledger, review and quarantine items, and remembered senders, so the next scan starts fresh. <strong>Your Settings are kept</strong> (including the demo defences toggle).
-      </ConfirmDialog>
+          open={resetting} title="Reset scan data?" confirmLabel="Reset scan data" danger
+          onCancel={() => setResetting(false)}
+          onConfirm={async () => { await api.resetScanData(); setResetting(false); refresh(); }}
+        >
+          Removes applications, the ledger, review and quarantine items, and remembered senders, so the next scan starts fresh. <strong>Your Settings are kept</strong> (including the demo defences toggle).
+        </ConfirmDialog>
+      )}
       <ConfirmDialog
         open={confirming} title="Delete everything JobTrail holds?" confirmLabel="Delete all" danger
         onCancel={() => setConfirming(false)}

@@ -26,3 +26,10 @@ table.clickable tbody tr:focus-visible { outline: 2px solid var(--primary); outl
 .tl-Assessment, .tl-Interview, .tl-Offer { background: var(--proceeding); }
 .tl-Rejected { background: var(--rejected); }
 .tl-Closed { background: var(--faint); }
+.search { font: inherit; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); width: 280px; max-width: 100%; color: var(--text); background: #fff; }
+.notes-field { grid-column: 1 / -1; }
+.notes-field textarea { font: inherit; font-weight: 400; color: var(--text); padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); resize: vertical; }
+.hint { font-weight: 400; color: var(--faint); }
+.notes { background: #fbf9ef; border: 1px solid #efe6c4; border-radius: var(--radius-sm); padding: 10px 12px; margin: 0 0 20px; white-space: pre-wrap; font-size: 14px; }
+.notes-label { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px; }
+.has-notes { margin-left: 8px; color: var(--faint); }

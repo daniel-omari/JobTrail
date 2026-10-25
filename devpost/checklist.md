@@ -125,7 +125,8 @@ Learner feedback: "perfect". Asked for recommendations, then agreed to:
 - [x] "Reset scan data only" (keeps settings) for demo re-runs
 - [x] Clear error banner when the backend is unreachable or a request fails
 - [x] README: precise Gate wording, no hard-coded test count, local-API protections documented
-- [ ] Deferred to the recording day (learner choice): model warm-up at startup, `--data-dir` demo folder
+- [x] Model warm-up at startup + demo data folder, delivered as `--demo` mode. The demo-only controls (defences toggle, Reset) now exist only in demo mode, so normal mode reads as a real product. First scan with warm-up: 4.2s instead of about 30s.
+- [x] Tracker search (company, role, notes) and private notes per application (learner-approved additions)
 
 - [ ] Final review complete — feedback resolved and learner confirms ready to ship
 
@@ -152,3 +153,4 @@ Activity mode:
 - Settings gained a headers-only `/api/labels` list, so labels in the inbox can be excluded with one click. The auto-clean minimum is 7 days, matching the clear guard.
 - Final review found a real gap: without protection, any website could forge requests to the local API (CSRF) or read it via DNS rebinding. Fixed with a Host allowlist, a required `X-JobTrail` header and an Origin check (`tests/test_security.py`). Verified against the running server: forged requests return 403.
 - Added "Reset scan data" (keeps Settings), so demo re-runs don't reset the defences toggle.
+- Learner asked for a product review. Agreed to: `--demo` mode (merges the planned warm-up and demo-folder items, and moves the defences toggle and Reset out of the normal UI), Tracker search, and per-application notes. A real `.mbox`/`.eml` import was deferred as the post-hackathon next step, to avoid risk before recording. PRD Tracker/Privacy/Settings and spec run/data-model sections updated.

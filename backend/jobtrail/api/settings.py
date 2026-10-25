@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sqlite3
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, ConfigDict, Field
 
 from .. import repo
@@ -27,8 +27,10 @@ def get_settings(conn: sqlite3.Connection = Depends(get_conn)) -> dict:
 
 
 @router.put("/settings")
-def put_settings(update: SettingsUpdate, conn: sqlite3.Connection = Depends(get_conn)) -> dict:
+def put_settings(update: SettingsUpdate, request: Request, conn: sqlite3.Connection = Depends(get_conn)) -> dict:
     values = update.model_dump(exclude_none=True)
+    if values.get("defences") is False and not request.app.state.config.demo:
+        raise HTTPException(403, "Defences can only be turned off in demo mode (python -m jobtrail --demo)")
     if values.pop("auto_clean_never", False):
         values["auto_clean_days"] = None
     if "excluded_labels" in values:

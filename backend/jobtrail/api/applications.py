@@ -20,6 +20,7 @@ class NewApplication(BaseModel):
     status: Status = Status.APPLIED
     date: dt.date | None = None
     how_applied: str = Field(default="Added manually", max_length=120)
+    notes: str = Field(default="", max_length=1000)
 
 
 class EditApplication(BaseModel):
@@ -27,6 +28,7 @@ class EditApplication(BaseModel):
     company: str | None = Field(default=None, min_length=1, max_length=100)
     role: str | None = Field(default=None, min_length=1, max_length=120)
     how_applied: str | None = Field(default=None, max_length=120)
+    notes: str | None = Field(default=None, max_length=1000)
     status: Status | None = None  # a stage change adds a dated event
 
 
@@ -52,6 +54,8 @@ def applications(archived: bool | None = False, conn: sqlite3.Connection = Depen
 def add(new: NewApplication, conn: sqlite3.Connection = Depends(get_conn)) -> dict:
     ex = Extraction(company=new.company.strip(), role=new.role.strip(), status=new.status)
     app_id = repo.record_event(conn, ex, new.date or dt.date.today(), "manual", new.how_applied, None, manual=True)
+    if new.notes.strip():
+        repo.update_application(conn, app_id, None, None, None, new.notes.strip())
     conn.commit()
     return _with_history(conn, [_get_or_404(conn, app_id)])[0]
 
@@ -59,7 +63,8 @@ def add(new: NewApplication, conn: sqlite3.Connection = Depends(get_conn)) -> di
 @router.patch("/applications/{app_id}")
 def edit(app_id: int, change: EditApplication, conn: sqlite3.Connection = Depends(get_conn)) -> dict:
     app = _get_or_404(conn, app_id)
-    repo.update_application(conn, app_id, change.company, change.role, change.how_applied)
+    notes = change.notes.strip() if change.notes is not None else None
+    repo.update_application(conn, app_id, change.company, change.role, change.how_applied, notes)
     if change.status is not None and change.status.value != app["current_status"]:
         repo.add_stage(conn, app_id, change.status, dt.date.today())
     conn.commit()
