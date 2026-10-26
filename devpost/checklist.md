@@ -116,7 +116,7 @@ Build mode: fast. The learner chose it: "just discuss and ask me for the importa
 ## Hands-on Checkpoints
 
 - [x] Early usable behavior explored — after slice 4 (scan, ledger, attack demo, Overview look). Feedback: wanted one combined gauge, not three. Done: a segmented gauge with blue = awaiting reply, and a legend with counts.
-- [ ] Final kick-the-tires exploration and feedback completed
+- [x] Final kick-the-tires exploration and feedback completed
 
 ## Final Review
 
@@ -128,18 +128,18 @@ Learner feedback: "perfect". Asked for recommendations, then agreed to:
 - [x] Model warm-up at startup + demo data folder, delivered as `--demo` mode. The demo-only controls (defences toggle, Reset) now exist only in demo mode, so normal mode reads as a real product. First scan with warm-up: 4.2s instead of about 30s.
 - [x] Tracker search (company, role, notes) and private notes per application (learner-approved additions)
 
-- [ ] Final review complete — feedback resolved and learner confirms ready to ship
+- [x] Final review complete — feedback resolved and learner confirms ready to ship (demo dry run: off → false Offers, on → 4 quarantined, "behaves as expected")
 
 ## Code Tour and App Map
 
 - [x] Learning activity complete — prior practice connected (the model-probe measurement that decided the detector-before-model order, and the final-review security finding), as an evidence-based recap
-- [ ] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
+- [x] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
 - [x] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
 
 Activity and evidence: Recap of practice that already happened in the build: `scripts/model_probe.py` measured that the hardened prompt alone didn't stop the hidden-text attack, which set the order in `pipeline/scan.py > process_opened`, now checked by `tests/test_defence_demo.py` and `pytest -m ollama`. The same habit found the local-API gap, pinned by `tests/test_security.py`.
 Route and stops: Reference route only (not toured interactively): `pipeline/rules.py > classify`, then `pipeline/gate.py > Gate.open`, then `pipeline/scan.py > process_opened`.
 Edit outcome: Not applicable. The learner chose to go straight to shipping.
-Reflection:
+Reflection: Offered ("what would you do differently next time you start with an agent?"); not answered, and the learner moved on to shipping.
 Activity mode: Recap plus app map. Every anchor in the map was checked against the source.
 
 ## Revisions
