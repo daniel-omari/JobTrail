@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JobTrail App Map</title>
+<style>
+  :root { --bg:#f7f8fa; --card:#fff; --border:#e3e6eb; --text:#1c2430; --muted:#5d6878; --blue:#2563eb; --green:#16a34a; --red:#cf2344; --amber:#7a5300; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; }
+  main { max-width: 920px; margin: 0 auto; padding: 32px 20px 64px; }
+  h1 { font-size: 26px; margin: 0 0 4px; } h2 { font-size: 18px; margin: 0 0 10px; } h3 { font-size: 15px; margin: 0 0 4px; }
+  .muted { color: var(--muted); } .small { font-size: 13px; }
+  section { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; margin:16px 0; }
+  code { font-family: ui-monospace,"Cascadia Code",Consolas,monospace; font-size: 13px; background:#f1f3f6; padding:1px 5px; border-radius:4px; }
+  pre { background:#f6f7f9; border:1px solid var(--border); border-radius:8px; padding:12px; overflow-x:auto; font-size:13px; }
+  ol.route { padding-left: 20px; } ol.route li { margin: 0 0 14px; }
+  ul { padding-left: 20px; } li { margin: 4px 0; }
+  details { border-top:1px solid var(--border); padding:8px 0; } summary { cursor:pointer; font-weight:600; }
+  svg { width:100%; height:auto; display:block; }
+  .tag { display:inline-block; font-size:12px; font-weight:700; border-radius:999px; padding:1px 8px; background:#eef2fb; color:var(--blue); }
+  a { color: var(--blue); }
+  :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>JobTrail: app map</h1>
+  <p class="muted">A take-home guide to where things live. It's a snapshot generated from commit <code>6ca1130</code> (25 Oct 2026), so it can drift as the code changes.</p>
+
+  <section>
+    <h2>What it is, in four pieces</h2>
+    <ul>
+      <li><strong>Frontend</strong> (<code>frontend/src/</code>): React pages. Each one only talks to the backend at <code>/api</code>, on the same address.</li>
+      <li><strong>Backend</strong> (<code>backend/jobtrail/</code>): FastAPI on <code>127.0.0.1</code>. It does the scanning, rules, AI calls and storage.</li>
+      <li><strong>Local AI</strong>: Ollama on <code>127.0.0.1:11434</code> (qwen2.5:7b). It only fills three fields for one email at a time.</li>
+      <li><strong>Storage</strong>: one SQLite file (<code>backend/data/jobtrail.db</code>; demo mode uses <code>backend/data-demo/</code>). Raw email text is never stored.</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="flow">
+    <h2 id="flow">One action, end to end: clicking <em>Scan Now</em></h2>
+    <svg viewBox="0 0 880 250" role="img" aria-labelledby="flowtitle">
+      <title id="flowtitle">Scan Now goes from the browser to the API, then rules decide skip, review or open. Opened emails pass through the Gate, then the detector, the local AI and the cross-check, and are stored or quarantined. The result shows in the Tracker and the ledger.</title>
+      <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5d6878"/></marker></defs>
+      <g font-family="system-ui,sans-serif" font-size="13">
+        <rect x="10" y="20" width="130" height="54" rx="10" fill="#eef2fb" stroke="#c7d8fb"/><text x="75" y="43" text-anchor="middle" font-weight="700">Scan Now</text><text x="75" y="61" text-anchor="middle" fill="#5d6878">NavBar.tsx</text>
+        <rect x="180" y="20" width="150" height="54" rx="10" fill="#fff" stroke="#e3e6eb"/><text x="255" y="43" text-anchor="middle" font-weight="700">POST /api/scan</text><text x="255" y="61" text-anchor="middle" fill="#5d6878">api/scan.py</text>
+        <rect x="370" y="20" width="150" height="54" rx="10" fill="#fff" stroke="#e3e6eb"/><text x="445" y="43" text-anchor="middle" font-weight="700">1 · Rules</text><text x="445" y="61" text-anchor="middle" fill="#5d6878">headers only</text>
+        <rect x="560" y="20" width="150" height="54" rx="10" fill="#fff" stroke="#e3e6eb"/><text x="635" y="43" text-anchor="middle" font-weight="700">2 · Gate</text><text x="635" y="61" text-anchor="middle" fill="#5d6878">ledger first</text>
+        <rect x="560" y="120" width="300" height="54" rx="10" fill="#fff" stroke="#e3e6eb"/><text x="710" y="143" text-anchor="middle" font-weight="700">3 · Detector → AI → Cross-check</text><text x="710" y="161" text-anchor="middle" fill="#5d6878">process_opened()</text>
+        <rect x="560" y="196" width="140" height="44" rx="10" fill="#e6f6ec" stroke="#b7e2c6"/><text x="630" y="223" text-anchor="middle" font-weight="700" fill="#11803a">Tracker</text>
+        <rect x="720" y="196" width="140" height="44" rx="10" fill="#fbe7eb" stroke="#f1c3cc"/><text x="790" y="223" text-anchor="middle" font-weight="700" fill="#cf2344">Quarantine</text>
+        <rect x="370" y="120" width="150" height="54" rx="10" fill="#f6f7f9" stroke="#e3e6eb"/><text x="445" y="143" text-anchor="middle" font-weight="700">skip / review</text><text x="445" y="161" text-anchor="middle" fill="#5d6878">never opened</text>
+        <line x1="140" y1="47" x2="178" y2="47" stroke="#5d6878" stroke-width="1.5" marker-end="url(#a)"/>
+        <line x1="330" y1="47" x2="368" y2="47" stroke="#5d6878" stroke-width="1.5" marker-end="url(#a)"/>
+        <line x1="520" y1="47" x2="558" y2="47" stroke="#5d6878" stroke-width="1.5" marker-end="url(#a)"/>
+        <line x1="445" y1="74" x2="445" y2="118" stroke="#5d6878" stroke-width="1.5" marker-end="url(#a)"/>
+        <line x1="635" y1="74" x2="635" y2="118" stroke="#5d6878" stroke-width="1.5" marker-end="url(#a)"/>
+        <line x1="630" y1="174" x2="630" y2="194" stroke="#5d6878" stroke-width="1.5" marker-end="url(#a)"/>
+        <line x1="790" y1="174" x2="790" y2="194" stroke="#5d6878" stroke-width="1.5" marker-end="url(#a)"/>
+      </g>
+    </svg>
+  </section>
+
+  <section>
+    <h2>The route: three stops <span class="tag">reference route</span></h2>
+    <p class="small muted">Search for the anchor in your editor (Ctrl+Shift+F) to jump straight there.</p>
+    <ol class="route">
+      <li>
+        <h3><code>backend/jobtrail/pipeline/rules.py</code> → <code>def classify</code></h3>
+        This decides <em>what gets read</em> from headers alone: excluded label, noise sender, rejected sender, don't-track, known platform, trusted sender, hiring-like subject (→ Review), or skip. The AI never makes this decision. <code>KNOWN_PLATFORMS</code> at the top of the file is the Tier A list.
+      </li>
+      <li>
+        <h3><code>backend/jobtrail/pipeline/gate.py</code> → <code>class Gate</code> / <code>def open</code></h3>
+        This is the only code that asks the inbox source for a body. It inserts and commits the access-ledger row, <em>then</em> reads the body. <code>tests/test_gate.py</code> checks that bodies read = ledger rows. That's by design and verified by a test; Python itself can't forbid it.
+      </li>
+      <li>
+        <h3><code>backend/jobtrail/pipeline/scan.py</code> → <code>def process_opened</code></h3>
+        The defence layers in order: <code>detect(body)</code> (before any AI), then <code>llm.extract(visible, header)</code> (strict JSON, validated by Pydantic), then <code>crosscheck(...)</code>. Anything suspicious goes to <code>_quarantine</code>, everything else to <code>_store</code>. The <code>if not defences:</code> branch is the demo-only naive path.
+      </li>
+    </ol>
+    <p class="small muted">The result appears in <code>frontend/src/pages/Tracker.tsx</code> (data from <code>GET /api/applications</code>) and <code>Privacy.tsx</code> (the ledger).</p>
+  </section>
+
+  <section>
+    <h2>To change this, start here</h2>
+    <ul>
+      <li><strong>Recognise another recruiting platform:</strong> add its domain to <code>KNOWN_PLATFORMS</code> in <code>pipeline/rules.py</code>, and add a fixture plus expectation in <code>fixtures/</code> (via <code>scripts/generate_fixtures.py</code>).</li>
+      <li><strong>Status wording</strong> (e.g. a new way of saying "rejected"): <code>_STATUS_PATTERNS</code> in <code>pipeline/rules.py</code>. The order matters, because rejection is checked first.</li>
+      <li><strong>New injection pattern:</strong> <code>INSTRUCTION</code> / <code>MANIPULATION</code> in <code>pipeline/detector.py</code>, with a test in <code>tests/test_detector.py</code> (including a no-false-positives check).</li>
+      <li><strong>A real email source</strong> (.mbox import or Gmail): implement <code>InboxSource</code> in <code>sources/base.py</code> (<code>list_headers</code>, <code>_read_body</code>). Nothing else needs to change.</li>
+      <li><strong>UC export wording:</strong> <code>ACTIVITY</code> / <code>OUTCOME</code> in <code>backend/jobtrail/export.py</code>.</li>
+      <li><strong>Colours and look:</strong> <code>frontend/src/styles/tokens.css</code>. The gauge is <code>SegmentedGauge</code> in <code>components/Gauge.tsx</code>.</li>
+      <li><strong>Local-API protection:</strong> <code>check_local_request</code> in <code>backend/jobtrail/main.py</code>, with <code>tests/test_security.py</code>.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>A practice to reuse: measure an assumption before building on it</h2>
+    <p><strong>What happened.</strong> The plan assumed a hardened "treat the email as data" prompt would help. Before building the defence demo, <code>scripts/model_probe.py</code> tested it against two real models. The hardened prompt <em>alone</em> did not stop the hidden-text attack once the hidden text reached the model.</p>
+    <p><strong>Where the evidence is.</strong> The table in <code>devpost/spec.md</code> → <em>Decisions and Open Issues</em>; the order in <code>process_opened</code> (detector before model); <code>tests/test_defence_demo.py</code>; and <code>pytest -m ollama</code> against the real model.</p>
+    <p><strong>Reusing it.</strong> When a design rests on "the model / library / API will behave like X", write a tiny probe that measures X first, record the result in the plan, and let it decide the architecture. The same habit found the local-API gap at final review, which is now pinned by <code>tests/test_security.py</code>.</p>
+  </section>
+
+  <section>
+    <h2>Run it again</h2>
+<pre>cd backend
+.venv\Scripts\python.exe -m jobtrail          # normal mode → http://127.0.0.1:8000
+.venv\Scripts\python.exe -m jobtrail --demo   # fresh demo data + demo-only controls
+.venv\Scripts\python.exe -m pytest            # the evidence (stub model, no network)
+.venv\Scripts\python.exe scripts\benchmark.py --model qwen2.5:7b</pre>
+    <details><summary>If the frontend changed</summary><pre>cd frontend
+npm run build</pre></details>
+  </section>
+</main>
+</body>
+</html>

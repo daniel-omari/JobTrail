@@ -152,3 +152,7 @@ devpost/                      scope, PRD, spec and build checklist (the plan thi
 - **No login.** Websites are blocked (see above), but another *program* running on the same computer could still call `127.0.0.1:8000` while JobTrail is open. It is a single-user, local tool.
 - **Delete all** overwrites deleted data inside the database file (`secure_delete` + `VACUUM`). It can't control copies your operating system, backups or SSD wear-levelling may keep.
 - The export is a helper for **your own** UC journal entries. It isn't connected to, or endorsed by, DWP, and you should check it before pasting.
+
+## Licence
+
+[MIT](LICENSE)

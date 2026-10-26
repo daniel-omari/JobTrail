@@ -132,15 +132,15 @@ Learner feedback: "perfect". Asked for recommendations, then agreed to:
 
 ## Code Tour and App Map
 
-- [ ] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
+- [x] Learning activity complete — prior practice connected (the model-probe measurement that decided the detector-before-model order, and the final-review security finding), as an evidence-based recap
 - [ ] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
-- [ ] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
+- [x] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
 
-Activity and evidence:
-Route and stops:
-Edit outcome:
+Activity and evidence: Recap of practice that already happened in the build: `scripts/model_probe.py` measured that the hardened prompt alone didn't stop the hidden-text attack, which set the order in `pipeline/scan.py > process_opened`, now checked by `tests/test_defence_demo.py` and `pytest -m ollama`. The same habit found the local-API gap, pinned by `tests/test_security.py`.
+Route and stops: Reference route only (not toured interactively): `pipeline/rules.py > classify`, then `pipeline/gate.py > Gate.open`, then `pipeline/scan.py > process_opened`.
+Edit outcome: Not applicable. The learner chose to go straight to shipping.
 Reflection:
-Activity mode:
+Activity mode: Recap plus app map. Every anchor in the map was checked against the source.
 
 ## Revisions
 
