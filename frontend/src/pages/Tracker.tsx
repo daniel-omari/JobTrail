@@ -7,6 +7,11 @@ import { useScan } from "../scan-context";
 import "./Tracker.css";
 
 const fmt = (d: string | null) => (d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—");
+const RULE_LABEL: Record<string, string> = {
+  known_platform: "known recruiting platform",
+  trusted_sender: "sender you approved",
+  approved_by_you: "you approved it in Review",
+};
 const today = () => new Date().toISOString().slice(0, 10);
 
 interface FormValues { company: string; role: string; status: Status; date: string; how_applied: string; notes: string }
@@ -62,9 +67,20 @@ function Drawer({ app, onClose, onChanged }: { app: Application; onClose: () => 
       </dl>
       {app.notes && !editing && <div className="notes"><div className="notes-label">Notes</div>{app.notes}</div>}
       <h2>History</h2>
+      <p className="small muted" style={{ marginTop: -6 }}>Each stage and the email it came from. Only the subject is shown, because JobTrail never stores email text.</p>
       <ol className="timeline">
         {app.history.map((h, i) => (
-          <li key={i}><span className={`tl-dot tl-${h.status}`} /><strong>{h.status}</strong><span className="muted"> · {fmt(h.event_date)}</span></li>
+          <li key={i}>
+            <span className={`tl-dot tl-${h.status}`} />
+            <div>
+              <div><strong>{h.status}</strong><span className="muted"> · {fmt(h.event_date)}</span></div>
+              <div className="tl-source">
+                {h.source === "email" && <>✉ “{h.subject}”{h.rule && <span className="muted"> · opened because: {RULE_LABEL[h.rule] ?? h.rule}</span>}</>}
+                {h.source === "manual" && <span className="muted">Added or changed by you</span>}
+                {h.source === "redacted" && <span className="muted">Email details redacted</span>}
+              </div>
+            </div>
+          </li>
         ))}
       </ol>
       {editing ? (

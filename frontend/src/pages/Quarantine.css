@@ -9,3 +9,4 @@
 .form-row { display: flex; gap: 12px; flex-wrap: wrap; }
 .form-row label { display: flex; flex-direction: column; font-size: 13px; font-weight: 600; color: var(--muted); gap: 4px; flex: 1; min-width: 160px; }
 .form-row input, .form-row select { font: inherit; font-weight: 400; color: var(--text); padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: #fff; }
+.q-affects { background: #f6f7f9; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 14px; margin-bottom: 4px; }

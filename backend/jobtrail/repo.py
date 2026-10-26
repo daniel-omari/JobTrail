@@ -158,9 +158,26 @@ def list_applications(conn: sqlite3.Connection, archived: bool | None = None) ->
 
 
 def list_events(conn: sqlite3.Connection, app_id: int) -> list[dict]:
-    return [dict(r) for r in conn.execute(
-        "SELECT status, event_date FROM events WHERE application_id=? ORDER BY event_date, id", (app_id,)
-    )]
+    """Status history. Each event says which email it came from, using the access ledger (subject + why it
+    was opened), or that you made the change yourself. No email content is stored or shown."""
+    rows = conn.execute(
+        "SELECT e.status, e.event_date, e.message_hash, "
+        "(SELECT l.subject FROM ledger l WHERE l.message_hash = e.message_hash ORDER BY l.id LIMIT 1) AS subject, "
+        "(SELECT l.rule FROM ledger l WHERE l.message_hash = e.message_hash ORDER BY l.id LIMIT 1) AS rule, "
+        "(SELECT l.redacted FROM ledger l WHERE l.message_hash = e.message_hash ORDER BY l.id LIMIT 1) AS redacted "
+        "FROM events e WHERE e.application_id=? ORDER BY e.event_date, e.id", (app_id,)
+    ).fetchall()
+    out = []
+    for r in rows:
+        if r["message_hash"] is None:
+            source = "manual"
+        elif r["redacted"]:
+            source = "redacted"
+        else:
+            source = "email"
+        out.append({"status": r["status"], "event_date": r["event_date"], "source": source,
+                    "subject": r["subject"] if source == "email" else None, "rule": r["rule"]})
+    return out
 
 
 # ---------- review queue ----------

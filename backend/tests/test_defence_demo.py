@@ -108,3 +108,22 @@ def test_real_model_demo(make_client, config):
         c.post("/api/scan")
         assert _all_apps(c)[("Wexford Media", "Junior Software Engineer")] == "Applied"
         assert len(c.get("/api/quarantine").json()) >= 4
+
+
+def test_tracker_history_names_the_source_email_and_quarantine_links_the_application(make_client):
+    with make_client(llm=StubOllama()) as c:
+        c.post("/api/scan")
+        wexford_app = next(a for a in c.get("/api/applications").json() if a["company"] == "Wexford Media")
+        q = next(q for q in c.get("/api/quarantine").json() if "Update on your application" in q["subject"])
+    assert [h["subject"] for h in wexford_app["history"]] == ["Application received – Junior Software Engineer"]
+    assert wexford_app["history"][0]["source"] == "email" and wexford_app["history"][0]["rule"] == "known_platform"
+    assert q["affects"] == {"company": "Wexford Media", "role": "Junior Software Engineer", "current_status": "Applied"}
+
+
+def test_defences_off_history_shows_which_email_made_the_offer(make_client):
+    with make_client(llm=StubOllama(), demo=True) as c:
+        c.put("/api/settings", json={"defences": False})
+        c.post("/api/scan")
+        wexford_app = next(a for a in c.get("/api/applications").json() if a["company"] == "Wexford Media")
+    assert [(h["status"], h["subject"]) for h in wexford_app["history"]][-1] == \
+        ("Offer", "Update on your application – Junior Software Engineer")

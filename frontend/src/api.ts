@@ -12,7 +12,7 @@ export interface Application {
   id: number; company: string; role: string; source: string; how_applied: string;
   current_status: Status; archived: boolean; manual: boolean; notes: string;
   applied_date: string | null; last_update: string | null;
-  history: { status: Status; event_date: string }[];
+  history: { status: Status; event_date: string; source: "email" | "manual" | "redacted"; subject: string | null; rule: string | null }[];
 }
 
 export interface LedgerEntry {
@@ -45,6 +45,7 @@ export interface QuarantineItem {
   id: number; sender: string; subject: string; received_date: string;
   reasons: Flag[];
   rules_prefill: { company: string | null; role: string | null; status: Status | null };
+  affects: { company: string; role: string; current_status: Status } | null;
 }
 
 export interface Settings {

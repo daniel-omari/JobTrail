@@ -23,7 +23,7 @@ INSTRUCTION = re.compile(
 MANIPULATION = re.compile(
     r"\b(?:mark|set|change|update|record|report|label)\b[^.\n]{0,60}\b(?:status|applications?|records?|candidate)\b"
     r"[^.\n]{0,40}\b(?:offer|hired|accepted|successful)\b"
-    r"|\b(?:all|every|other) (?:applications|records|candidates|entries)\b"
+    r"|\b(?:mark|set|change|update|modify|delete|remove|overwrite)\b[^.\n]{0,30}\b(?:all|every|other) (?:applications?|records?|entries)\b"
     r"|\bdelete (?:every|all|the)\b[^.\n]{0,30}\b(?:records?|applications?|rejected)\b",
     re.I,
 )

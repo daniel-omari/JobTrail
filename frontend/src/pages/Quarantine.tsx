@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api, STATUSES, type Fields, type QuarantineItem, type Status } from "../api";
 import { EmptyState } from "../components/EmptyState";
+import { StageBadge } from "../components/StageBadge";
 import { useScan } from "../scan-context";
 import "./Quarantine.css";
 
@@ -53,6 +54,14 @@ export function Quarantine() {
               <div className="small muted">{q.sender} · {new Date(q.received_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</div>
             </div>
             <span className="badge badge-rejected">Quarantined</span>
+          </div>
+          <div className="q-affects">
+            {q.affects ? (
+              <>This email was about <strong>{q.affects.company} · {q.affects.role}</strong> in your Tracker. It still shows{" "}
+                <StageBadge status={q.affects.current_status} />, because <strong>nothing was changed</strong>.</>
+            ) : (
+              <>It doesn't match any application in your Tracker, and <strong>nothing was added</strong>.</>
+            )}
           </div>
           {q.reasons.map((r, i) => (
             <div className="q-reason" key={i}>

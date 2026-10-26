@@ -21,6 +21,11 @@ def list_quarantine(conn: sqlite3.Connection = Depends(get_conn)) -> list[dict]:
     items = repo.quarantine_list(conn)
     for i in items:
         i.pop("message_id", None)  # internal id, not needed by the UI
+        # Which tracked application this email was about (from the rules' reading, never the AI's), if any.
+        p = i["rules_prefill"]
+        app = repo.find_application(conn, p["company"], p["role"]) if p.get("company") and p.get("role") else None
+        i["affects"] = ({"company": app["company"], "role": app["role"], "current_status": app["current_status"]}
+                        if app else None)
     return items
 
 
